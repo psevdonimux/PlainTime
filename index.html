@@ -1,0 +1,802 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Планировщик задач по матрице Эйзенхауэра</title>
+     <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            background-color: #000000;
+            color: #e0e0e0;
+            font-size: 16px;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            background-color: #0a0a0a;
+            color: #ffffff;
+            padding: 15px 0;
+            margin-bottom: 20px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.5);
+        }
+        
+        h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+        
+        h2 {
+            font-size: 22px;
+            margin-top: 0;
+        }
+        
+        h3 {
+            font-size: 20px;
+            margin-top: 0;
+        }
+        
+        .days-nav {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            background-color: #0a0a0a;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .day-tab {
+            flex: 1;
+            padding: 12px 15px;
+            cursor: pointer;
+            color: #ffffff;
+            border: none;
+            background: transparent;
+            font-size: 16px;
+            transition: background-color 0.3s;
+            text-align: center;
+        }
+        
+        .day-tab:hover {
+            background-color: #1a1a1a;
+        }
+        
+        .day-tab.active {
+            background-color: #1e88e5;
+            font-weight: bold;
+        }
+        
+        .day-content {
+            display: none;
+            padding: 20px;
+            background-color: #0a0a0a;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+            margin-bottom: 30px;
+        }
+        
+        .day-content.active {
+            display: block;
+        }
+        
+        .quadrant {
+            margin-bottom: 30px;
+            border: 1px solid #333;
+            border-radius: 8px;
+            padding: 15px;
+            background-color: #111111;
+        }
+        
+        .quadrant-1 {
+            border-left: 5px solid #e53935;
+        }
+        
+        .quadrant-2 {
+            border-left: 5px solid #039be5;
+        }
+        
+        .quadrant-3 {
+            border-left: 5px solid #ffb300;
+        }
+        
+        .quadrant-4 {
+            border-left: 5px solid #757575;
+        }
+        
+        .task-list {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .task-item {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            padding: 12px 15px;
+            border-bottom: 1px solid #333;
+            animation: fadeIn 0.5s;
+            background-color: #1a1a1a;
+            margin-bottom: 8px;
+            border-radius: 6px;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .task-item:last-child {
+            border-bottom: none;
+        }
+        
+        .task-checkbox {
+            margin-right: 15px;
+            width: 20px;
+            height: 20px;
+            accent-color: #1e88e5;
+        }
+        
+        .task-text {
+            flex-grow: 1;
+            font-size: 16px;
+            color: #ffffff;
+            margin-right: 15px;
+            word-break: break-word;
+        }
+        
+        .task-actions {
+            display: flex;
+            align-items: center;
+            margin-top: 10px;
+            width: 100%;
+            justify-content: flex-end;
+        }
+        
+        .timer-display {
+            font-size: 15px;
+            color: #9e9e9e;
+            margin-right: 15px;
+        }
+        
+        .deadline-display {
+            font-size: 15px;
+            color: #9e9e9e;
+            margin-right: 15px;
+        }
+        
+        .deadline-approaching {
+            color: #ffb300;
+        }
+        
+        .deadline-passed {
+            color: #f44336;
+        }
+        
+        .task-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 18px;
+            margin-left: 8px;
+            color: #9e9e9e;
+            transition: color 0.3s;
+            padding: 5px 10px;
+            border-radius: 4px;
+        }
+        
+        .task-btn:hover {
+            color: #ffffff;
+            background-color: #222222;
+        }
+        
+        .btn-start {
+            color: #4caf50;
+        }
+        
+        .btn-pause {
+            color: #ffb300;
+        }
+        
+        .btn-delete {
+            color: #f44336;
+        }
+        
+        .btn-set-time {
+            color: #2196f3;
+        }
+        
+        .btn-deadline {
+            color: #9c27b0;
+        }
+        
+        .add-task-form {
+            display: flex;
+            flex-direction: column;
+            margin-top: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .add-task-input {
+            flex-grow: 1;
+            padding: 12px;
+            border: 1px solid #444;
+            border-radius: 6px;
+            font-size: 16px;
+            background-color: #222222;
+            color: #ffffff;
+            margin-bottom: 10px;
+        }
+        
+        .add-task-input::placeholder {
+            color: #888;
+        }
+        
+        .add-task-btn {
+            padding: 12px;
+            background-color: #1e88e5;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            font-size: 16px;
+        }
+        
+        .add-task-btn:hover {
+            background-color: #039be5;
+        }
+        
+        .task-completed .task-text {
+            text-decoration: line-through;
+            color: #757575;
+        }
+        
+        .timer-active {
+            font-weight: bold;
+            color: #4caf50;
+        }
+        
+        .task-timer-controls {
+            display: flex;
+            align-items: center;
+        }
+        
+        footer {
+            text-align: center;
+            padding: 20px;
+            margin-top: 30px;
+            font-size: 14px;
+            color: #757575;
+            background-color: #0a0a0a;
+        }
+        
+        /* Media queries for better responsiveness */
+        @media (min-width: 768px) {
+            .add-task-form {
+                flex-direction: row;
+            }
+            
+            .add-task-input {
+                margin-bottom: 0;
+                margin-right: 10px;
+            }
+            
+            .task-actions {
+                width: auto;
+                margin-top: 0;
+            }
+            
+            .task-item {
+                flex-wrap: nowrap;
+            }
+        }
+        
+        /* Improved action buttons */
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .action-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background-color: #1a1a1a;
+            color: #9e9e9e;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .action-btn:hover {
+            background-color: #333;
+            transform: scale(1.1);
+        }
+        
+        .play-btn {
+            color: #4caf50;
+        }
+        
+        .time-btn {
+            color: #2196f3;
+        }
+        
+        .date-btn {
+            color: #9c27b0;
+        }
+        
+        .delete-btn {
+            color: #f44336;
+        }
+    </style>
+</head>
+<body>
+    
+    <div class="days-nav" id="daysNav">
+        <button class="day-tab active" data-day="monday">Понедельник</button>
+        <button class="day-tab" data-day="tuesday">Вторник</button>
+        <button class="day-tab" data-day="wednesday">Среда</button>
+        <button class="day-tab" data-day="thursday">Четверг</button>
+        <button class="day-tab" data-day="friday">Пятница</button>
+        <button class="day-tab" data-day="saturday">Суббота</button>
+        <button class="day-tab" data-day="sunday">Воскресенье</button>
+    </div>
+    
+    <div class="container" id="app">
+    </div>
+    
+
+
+    <script>
+        const days = [
+            { id: 'monday', name: 'Понедельник' },
+            { id: 'tuesday', name: 'Вторник' },
+            { id: 'wednesday', name: 'Среда' },
+            { id: 'thursday', name: 'Четверг' },
+            { id: 'friday', name: 'Пятница' },
+            { id: 'saturday', name: 'Суббота' },
+            { id: 'sunday', name: 'Воскресенье' }
+        ];
+        
+        const quadrants = [
+            { id: 1, name: 'Срочно и важно (сделать сейчас)' },
+            { id: 2, name: 'Важно, но не срочно (запланировать)' },
+            { id: 3, name: 'Срочно, но не важно (передать, автоматизировать, не более 15-30 минут)' },
+            { id: 4, name: 'Не срочно и не важно (удалить)' }
+        ];
+        
+        let tasks = {};
+        let activeTimers = {};
+        
+        function initTasks() {
+            const savedTasks = localStorage.getItem('eisenhowerTasks');
+            if (savedTasks) {
+                tasks = JSON.parse(savedTasks);
+            } else {
+                days.forEach(day => {
+                    tasks[day.id] = {};
+                    quadrants.forEach(quadrant => {
+                        tasks[day.id][quadrant.id] = [];
+                    });
+                });
+                saveTasks();
+            }
+        }
+        
+        function saveTasks() {
+            localStorage.setItem('eisenhowerTasks', JSON.stringify(tasks));
+        }
+        
+        function createAppStructure() {
+            const appContainer = document.getElementById('app');
+            
+            days.forEach(day => {
+                const dayContent = document.createElement('div');
+                dayContent.className = `day-content ${day.id === 'monday' ? 'active' : ''}`;
+                dayContent.id = `content-${day.id}`;
+                
+                const dayHeader = document.createElement('h2');
+                dayHeader.textContent = day.name;
+                dayContent.appendChild(dayHeader);
+                
+                quadrants.forEach(quadrant => {
+                    const quadrantElement = document.createElement('div');
+                    quadrantElement.className = `quadrant quadrant-${quadrant.id}`;
+                    
+                    const quadrantHeader = document.createElement('h3');
+                    quadrantHeader.textContent = quadrant.name;
+                    quadrantElement.appendChild(quadrantHeader);
+                    
+                    const taskList = document.createElement('ul');
+                    taskList.className = 'task-list';
+                    taskList.id = `task-list-${day.id}-${quadrant.id}`;
+                    quadrantElement.appendChild(taskList);
+                    
+                    const addTaskForm = document.createElement('div');
+                    addTaskForm.className = 'add-task-form';
+                    
+                    const addTaskInput = document.createElement('input');
+                    addTaskInput.type = 'text';
+                    addTaskInput.className = 'add-task-input';
+                    addTaskInput.placeholder = 'Добавить новую задачу...';
+                    addTaskForm.appendChild(addTaskInput);
+                    
+                    const addTaskBtn = document.createElement('button');
+                    addTaskBtn.className = 'add-task-btn';
+                    addTaskBtn.textContent = 'Добавить';
+                    addTaskBtn.addEventListener('click', () => {
+                        const taskText = addTaskInput.value.trim();
+                        if (taskText) {
+                            addTask(day.id, quadrant.id, taskText);
+                            addTaskInput.value = '';
+                        }
+                    });
+                    addTaskForm.appendChild(addTaskBtn);
+                    
+                    quadrantElement.appendChild(addTaskForm);
+                    dayContent.appendChild(quadrantElement);
+                });
+                
+                appContainer.appendChild(dayContent);
+            });
+        }
+        
+        function addTask(dayId, quadrantId, text) {
+            const newTask = {
+                id: Date.now().toString(),
+                text: text,
+                completed: false,
+                time: 0,
+                plannedTime: 0,
+                deadline: null
+            };
+            
+            tasks[dayId][quadrantId].push(newTask);
+            saveTasks();
+            renderTasks(dayId, quadrantId);
+        }
+        
+        function deleteTask(dayId, quadrantId, taskId) {
+            if (activeTimers[taskId]) {
+                clearInterval(activeTimers[taskId]);
+                delete activeTimers[taskId];
+            }
+            
+            tasks[dayId][quadrantId] = tasks[dayId][quadrantId].filter(task => task.id !== taskId);
+            saveTasks();
+            renderTasks(dayId, quadrantId);
+        }
+        
+        function toggleTaskComplete(dayId, quadrantId, taskId) {
+            const taskIndex = tasks[dayId][quadrantId].findIndex(task => task.id === taskId);
+            if (taskIndex !== -1) {
+                tasks[dayId][quadrantId][taskIndex].completed = !tasks[dayId][quadrantId][taskIndex].completed;
+                saveTasks();
+                renderTasks(dayId, quadrantId);
+            }
+        }
+        
+        function setTaskPlannedTime(dayId, quadrantId, taskId) {
+            const taskIndex = tasks[dayId][quadrantId].findIndex(task => task.id === taskId);
+            if (taskIndex !== -1) {
+                const minutes = prompt("Укажите время для выполнения (в минутах):", Math.floor(tasks[dayId][quadrantId][taskIndex].plannedTime / 60));
+                if (minutes !== null && !isNaN(minutes)) {
+                    tasks[dayId][quadrantId][taskIndex].plannedTime = parseInt(minutes) * 60;
+                    saveTasks();
+                    renderTasks(dayId, quadrantId);
+                }
+            }
+        }
+        
+        function setTaskDeadline(dayId, quadrantId, taskId) {
+            const taskIndex = tasks[dayId][quadrantId].findIndex(task => task.id === taskId);
+            if (taskIndex !== -1) {
+                const currentDeadline = tasks[dayId][quadrantId][taskIndex].deadline;
+                const defaultDate = currentDeadline ? new Date(currentDeadline) : new Date();
+                
+                const year = defaultDate.getFullYear();
+                const month = String(defaultDate.getMonth() + 1).padStart(2, '0');
+                const day = String(defaultDate.getDate()).padStart(2, '0');
+                const hours = String(defaultDate.getHours()).padStart(2, '0');
+                const minutes = String(defaultDate.getMinutes()).padStart(2, '0');
+                
+                const defaultDateString = `${year}-${month}-${day}T${hours}:${minutes}`;
+                
+                const deadlineStr = prompt("Введите дедлайн (дата и время):", defaultDateString);
+                
+                if (deadlineStr) {
+                    try {
+                        const deadlineDate = new Date(deadlineStr);
+                        if (!isNaN(deadlineDate.getTime())) {
+                            tasks[dayId][quadrantId][taskIndex].deadline = deadlineDate.toISOString();
+                            saveTasks();
+                            renderTasks(dayId, quadrantId);
+                        } else {
+                            alert("Неверный формат даты");
+                        }
+                    } catch (e) {
+                        alert("Неверный формат даты");
+                    }
+                }
+            }
+        }
+        
+        function startTimer(dayId, quadrantId, taskId) {
+            if (activeTimers[taskId]) {
+                return;
+            }
+            
+            const taskIndex = tasks[dayId][quadrantId].findIndex(task => task.id === taskId);
+            if (taskIndex === -1) return;
+            
+            const timerDisplay = document.getElementById(`timer-${taskId}`);
+            const startBtn = document.getElementById(`start-${taskId}`);
+            const pauseBtn = document.getElementById(`pause-${taskId}`);
+            
+            startBtn.style.display = 'none';
+            pauseBtn.style.display = 'inline';
+            timerDisplay.classList.add('timer-active');
+            
+            const startTime = Date.now() - (tasks[dayId][quadrantId][taskIndex].time * 1000);
+            
+            activeTimers[taskId] = setInterval(() => {
+                const elapsedSeconds = Math.floor((Date.now() - startTime) / 1000);
+                tasks[dayId][quadrantId][taskIndex].time = elapsedSeconds;
+                
+                const hours = Math.floor(elapsedSeconds / 3600);
+                const minutes = Math.floor((elapsedSeconds % 3600) / 60);
+                const seconds = elapsedSeconds % 60;
+                
+                timerDisplay.textContent = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                
+                if (elapsedSeconds % 5 === 0) {
+                    saveTasks();
+                }
+            }, 1000);
+        }
+        
+        function pauseTimer(dayId, quadrantId, taskId) {
+            if (!activeTimers[taskId]) {
+                return;
+            }
+            
+            clearInterval(activeTimers[taskId]);
+            delete activeTimers[taskId];
+            
+            const timerDisplay = document.getElementById(`timer-${taskId}`);
+            const startBtn = document.getElementById(`start-${taskId}`);
+            const pauseBtn = document.getElementById(`pause-${taskId}`);
+            
+            startBtn.style.display = 'inline';
+            pauseBtn.style.display = 'none';
+            timerDisplay.classList.remove('timer-active');
+            
+            saveTasks();
+        }
+        
+        function formatTime(seconds) {
+            const hours = Math.floor(seconds / 3600);
+            const minutes = Math.floor((seconds % 3600) / 60);
+            const secs = seconds % 60;
+            
+            return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+        }
+        
+        function formatDeadline(deadlineStr) {
+            if (!deadlineStr) return '';
+            
+            const deadline = new Date(deadlineStr);
+            const now = new Date();
+            
+            const day = deadline.getDate().toString().padStart(2, '0');
+            const month = (deadline.getMonth() + 1).toString().padStart(2, '0');
+            const hours = deadline.getHours().toString().padStart(2, '0');
+            const minutes = deadline.getMinutes().toString().padStart(2, '0');
+            
+            const dateStr = `${day}.${month} ${hours}:${minutes}`;
+            
+            const diffMs = deadline - now;
+            const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+            
+            if (diffHours < 0) {
+                return `${dateStr} (просрочено)`;
+            } else if (diffHours < 24) {
+                return `${dateStr} (${diffHours}ч осталось)`;
+            } else {
+                const diffDays = Math.floor(diffHours / 24);
+                return `${dateStr} (${diffDays}д осталось)`;
+            }
+        }
+        
+        function getDeadlineClass(deadlineStr) {
+            if (!deadlineStr) return '';
+            
+            const deadline = new Date(deadlineStr);
+            const now = new Date();
+            
+            const diffMs = deadline - now;
+            const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+            
+            if (diffHours < 0) {
+                return 'deadline-passed';
+            } else if (diffHours < 24) {
+                return 'deadline-approaching';
+            } else {
+                return '';
+            }
+        }
+        
+        function renderTasks(dayId, quadrantId) {
+            const taskList = document.getElementById(`task-list-${dayId}-${quadrantId}`);
+            if (!taskList) return;
+            
+            taskList.innerHTML = '';
+            
+            if (!tasks[dayId] || !tasks[dayId][quadrantId]) return;
+            
+            tasks[dayId][quadrantId].forEach(task => {
+                const taskItem = document.createElement('li');
+                taskItem.className = `task-item ${task.completed ? 'task-completed' : ''}`;
+                
+                const checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+                checkbox.className = 'task-checkbox';
+                checkbox.checked = task.completed;
+                checkbox.addEventListener('change', () => toggleTaskComplete(dayId, quadrantId, task.id));
+                taskItem.appendChild(checkbox);
+                
+                const taskText = document.createElement('span');
+                taskText.className = 'task-text';
+                taskText.textContent = task.text;
+                taskItem.appendChild(taskText);
+                
+                const taskActions = document.createElement('div');
+                taskActions.className = 'task-actions';
+                
+                const timerDisplay = document.createElement('span');
+                timerDisplay.className = 'timer-display';
+                timerDisplay.id = `timer-${task.id}`;
+                timerDisplay.textContent = formatTime(task.time);
+                taskActions.appendChild(timerDisplay);
+                
+                if (task.deadline) {
+                    const deadlineDisplay = document.createElement('span');
+                    deadlineDisplay.className = `deadline-display ${getDeadlineClass(task.deadline)}`;
+                    deadlineDisplay.id = `deadline-${task.id}`;
+                    deadlineDisplay.textContent = formatDeadline(task.deadline);
+                    taskActions.appendChild(deadlineDisplay);
+                }
+                
+                const timerControls = document.createElement('div');
+                timerControls.className = 'task-timer-controls';
+                
+                const startBtn = document.createElement('button');
+                startBtn.className = 'task-btn btn-start';
+                startBtn.id = `start-${task.id}`;
+                startBtn.innerHTML = '&#9654;';
+                startBtn.title = 'Запустить таймер';
+                startBtn.style.display = activeTimers[task.id] ? 'none' : 'inline';
+                startBtn.addEventListener('click', () => startTimer(dayId, quadrantId, task.id));
+                timerControls.appendChild(startBtn);
+                
+                const pauseBtn = document.createElement('button');
+                pauseBtn.className = 'task-btn btn-pause';
+                pauseBtn.id = `pause-${task.id}`;
+                pauseBtn.innerHTML = '&#10074;&#10074;';
+                pauseBtn.title = 'Приостановить таймер';
+                pauseBtn.style.display = activeTimers[task.id] ? 'inline' : 'none';
+                pauseBtn.addEventListener('click', () => pauseTimer(dayId, quadrantId, task.id));
+                timerControls.appendChild(pauseBtn);
+                
+                const timeBtn = document.createElement('button');
+                timeBtn.className = 'task-btn btn-set-time';
+                timeBtn.innerHTML = '&#x1F551;';
+                timeBtn.title = 'Установить запланированное время';
+                timeBtn.addEventListener('click', () => setTaskPlannedTime(dayId, quadrantId, task.id));
+                timerControls.appendChild(timeBtn);
+                
+                const deadlineBtn = document.createElement('button');
+                deadlineBtn.className = 'task-btn btn-deadline';
+                deadlineBtn.innerHTML = '&#x1F4C5;';
+                deadlineBtn.title = 'Установить дедлайн';
+                deadlineBtn.addEventListener('click', () => setTaskDeadline(dayId, quadrantId, task.id));
+                timerControls.appendChild(deadlineBtn);
+                
+                const deleteBtn = document.createElement('button');
+                deleteBtn.className = 'task-btn btn-delete';
+                deleteBtn.innerHTML = '&#x2715;';
+                deleteBtn.title = 'Удалить задачу';
+                deleteBtn.addEventListener('click', () => deleteTask(dayId, quadrantId, task.id));
+                timerControls.appendChild(deleteBtn);
+                
+                taskActions.appendChild(timerControls);
+                taskItem.appendChild(taskActions);
+                
+                taskList.appendChild(taskItem);
+                
+                if (activeTimers[task.id]) {
+                    timerDisplay.classList.add('timer-active');
+                }
+            });
+        }
+        
+        function setupDayTabs() {
+            const dayTabs = document.querySelectorAll('.day-tab');
+            
+            dayTabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    dayTabs.forEach(t => t.classList.remove('active'));
+                    document.querySelectorAll('.day-content').forEach(c => c.classList.remove('active'));
+                    
+                    tab.classList.add('active');
+                    const dayId = tab.getAttribute('data-day');
+                    document.getElementById(`content-${dayId}`).classList.add('active');
+                });
+            });
+        }
+        
+        function renderAllTasks() {
+            days.forEach(day => {
+                quadrants.forEach(quadrant => {
+                    renderTasks(day.id, quadrant.id);
+                });
+            });
+        }
+        
+        function checkDeadlines() {
+            days.forEach(day => {
+                quadrants.forEach(quadrant => {
+                    if (tasks[day.id] && tasks[day.id][quadrant.id]) {
+                        tasks[day.id][quadrant.id].forEach(task => {
+                            if (task.deadline) {
+                                const deadlineDisplay = document.getElementById(`deadline-${task.id}`);
+                                if (deadlineDisplay) {
+                                    deadlineDisplay.textContent = formatDeadline(task.deadline);
+                                    deadlineDisplay.className = `deadline-display ${getDeadlineClass(task.deadline)}`;
+                                }
+                            }
+                        });
+                    }
+                });
+            });
+        }
+        
+        function init() {
+            initTasks();
+            createAppStructure();
+            setupDayTabs();
+            renderAllTasks();
+            
+            document.querySelectorAll('.add-task-input').forEach(input => {
+                input.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        const btn = input.nextElementSibling;
+                        if (btn) btn.click();
+                    }
+                });
+            });
+            
+            setInterval(checkDeadlines, 60000);
+        }
+        
+        window.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
