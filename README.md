@@ -1,1 +1,1 @@
-# PlainTime
+# PlainTime - Планировщик задач

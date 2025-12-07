@@ -1,0 +1,94 @@
+[data-theme='light']{
+	--bg-color: white;
+	--text-color: black;
+	--border-color: black;
+}
+[data-theme='dark']{
+	--bg-color: black;
+	--text-color: white;
+	--border-color: white;
+}
+@font-face{
+	font-family: 'Lato Semi Bold';
+	src: url('../fonts/Lato-Semibold.ttf');
+	font-weight: normal;
+	font-style: normal;
+	font-display: swap;
+}
+body, p, button, dialog, select, input, div{
+	background-color: var(--bg-color);
+	color: var(--text-color);
+	font-family: 'Lato Semi Bold';
+}
+button, select, input, div{
+	/*
+	border-color: var(--border-color);
+	border-width: var(--border-width);
+	border-style: solid;
+	*/
+}
+.column{
+	text-align: center;
+}
+.column h1{
+	font-size: clamp(2rem, 8vmin, 3rem);
+}
+.input-row{
+	display: flex;
+	justify-content: center;
+}
+.input-task{
+	max-width: 550px;
+	flex: 1;
+	box-sizing: border-box;
+	font-size: clamp(1rem, 4vmin, 1.5rem);
+	min-height: 44px;
+}
+.add-task{
+	min-height: 44px;
+	aspect-ratio: 1 / 1;
+	font-size: clamp(1rem, 4vmin, 1.5rem);
+}
+#panel{
+	display: grid;
+	grid-template-columns: repeat(12, 1fr);
+	position: sticky;
+	top: 0;
+}
+#panel button{
+	min-width: 60px;
+	min-height: 22px;
+	font-size: clamp(0.5rem, 3vmin, 1rem);
+	grid-column: span 4;
+}
+#panel button:nth-child(-n+4){
+	grid-column: span 3;
+}
+.list{
+	margin: 0 auto;
+	max-width: 595px;
+	flex: 1;
+	box-sizing: border-box;
+	font-size: clamp(1rem, 4vmin, 1.5rem);
+}
+.task-label{
+	display: flex;
+	gap: 0;
+}
+.task-label input[type="checkbox"]{
+	width: 20px;
+	height: 20px;
+}
+.task-label span{
+	font-size: 20px;
+}
+.task-div{
+	display: flex;
+	margin-left: auto;
+	gap: 10px;
+}
+.drag{
+	touch-action: none;
+	cursor: move;
+	user-select: none;
+}

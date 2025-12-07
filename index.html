@@ -1,27 +1,59 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html data-theme="dark" lang="ru">
 <head>
-    <title>Планировщик задач</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" href="icon.webp">
-    <link rel="stylesheet" href="Index.css">
+	<title>PlainTime - Планировщик задач</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="icon" href="images/icon.ico">
+	<link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
-    <div class="days-nav" id="daysNav">
-        <button class="day-tab active" data-day="monday">Понедельник</button>
-        <button class="day-tab" data-day="tuesday">Вторник</button>
-        <button class="day-tab" data-day="wednesday">Среда</button>
-        <button class="day-tab" data-day="thursday">Четверг</button>
-        <button class="day-tab" data-day="friday">Пятница</button>
-        <button class="day-tab" data-day="saturday">Суббота</button>
-        <button class="day-tab" data-day="sunday">Воскресенье</button>
-    </div>
-    <div class="storage-controls">
-        <button id="downloadData" class="storage-btn">Скачать данные</button>
-        <input type="file" id="uploadData" class="upload-input" accept=".json" hidden>
-        <label for="uploadData" class="storage-btn">Загрузить данные</label>
-    </div>
-    <div class="container" id="app"></div>
-    <script src="Index.js"></script>
+	<div id="panel">
+		<button class="days">Понедельник</button>
+		<button class="days">Вторник</button>
+		<button class="days">Среда</button>
+		<button class="days">Четверг</button>
+		<button class="days">Пятница</button>
+		<button class="days">Суббота</button>
+		<button class="days">Воскресенье</button>
+		<button id="mode">Тема</button>
+		<button id="import">Загрузить</button>
+        <input type="file" id="fileInput" style="display:none" accept=".json" />
+		<button id="export">Экспортировать</button>
+	</div>
+	<div>
+		<div class="column">
+			<h1>Основные задачи</h1>
+			<div class="list"></div>
+			<div class="input-row">
+				<input class="input-task"placeholder="Введите задачу">
+				<button class="add-task">+</button>
+			</div>	
+		</div>
+		<div class="column">
+			<h1>Второстепенные задачи</h1>
+			<div class="list"></div>
+			<div class="input-row">
+				<input class="input-task"placeholder="Введите задачу">
+				<button class="add-task">+</button>
+			</div>	
+		</div>
+		<div class="column">
+			<h1>Мелкие задачи</h1>
+			<div class="list"></div>
+			<div class="input-row">
+				<input class="input-task"placeholder="Введите задачу">
+				<button class="add-task">+</button>
+			</div>	
+		</div>
+		<div class="column">
+			<h1>Ненужные задачи</h1>
+			<div class="list"></div>
+			<div class="input-row">
+				<input class="input-task"placeholder="Введите задачу">
+				<button class="add-task">+</button>
+			</div>	
+		</div>
+	</div>
+	<script src="js/index.js"></script>
 </body>
 </html>
