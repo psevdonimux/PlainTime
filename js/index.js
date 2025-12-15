@@ -62,21 +62,29 @@ class SimpleApp {
 		this.initDragAndDrop();
 		let addTaskElements = document.getElementsByClassName('add-task');
 		let checkboxElements = document.getElementsByClassName('checkbox');
-		for (let i = 0; i < addTaskElements.length; i++){
+		let inputTaskElements = document.getElementsByClassName('input-task');
+		for(let i = 0; i < addTaskElements.length; i++){
 			let column = i;
 			addTaskElements[i].onclick = () => {
 				this.createTask(this.currentDays, column, document.getElementsByClassName('input-task')[i].value);
 				document.getElementsByClassName('input-task')[i].value = '';
-			}
+			};
 		}
-		for (let i = 0; i < checkboxElements.length; i++){
+		for(let i = 0; i < checkboxElements.length; i++){
 			let column = i;
 			checkboxElements[i].onclick = (e) => {
 				const taskLabel = e.target.closest('.task-label');
 				const columnIndex = parseInt(taskLabel.dataset.columnIndex);
 				const taskIndex = parseInt(taskLabel.dataset.taskIndex);
 				this.updateTaskStatus(columnIndex, taskIndex);
-			}
+			};
+		}
+		for(let i = 0; i < inputTaskElements.length; i++){
+			let column = i;
+			inputTaskElements[i].onchange = () => {
+				this.createTask(this.currentDays, column, document.getElementsByClassName('input-task')[i].value);
+				document.getElementsByClassName('input-task')[i].value = '';
+			};
 		}
 		document.onclick = (e) => {
 			if(e.target.classList.contains('close')){
@@ -98,25 +106,13 @@ class SimpleApp {
 				this.editTask(columnIndex, taskIndex);
 			}
 			else if(e.target.classList.contains('days')){
-				let clickedIndex = Array.from(e.target.closest('#panel').querySelectorAll('.days')).indexOf(e.target);
-				if(clickedIndex == 6){
-					clickedIndex = 0;
-				}
-				else{
-					clickedIndex++;
-				}
-				this.setCurrentDays(clickedIndex);
-				document.querySelectorAll('.days').forEach(btn => {
-					btn.style.color = 'gray';
-				});
-				e.target.style.color = 'var(--text-color)';
+				this.updateDays(e);
 			}
 		};
 		this.elements.mode.onclick = () => {
 			this.toggleTheme();
 			this.updateTheme();
 		};
-
 		function getNearestMondayToSundayRange(){
 			const today = new Date();
 			const day = today.getDay();
@@ -160,6 +156,21 @@ class SimpleApp {
 			reader.readAsText(e.target.files[0]);
 			e.target.value = "";
 		};
+	}
+
+	updateDays(e){
+		let clickedIndex = Array.from(e.target.closest('#panel').querySelectorAll('.days')).indexOf(e.target);
+		if(clickedIndex == 6){
+			clickedIndex = 0;
+		}
+		else{
+			clickedIndex++;
+		}
+		this.setCurrentDays(clickedIndex);
+		document.querySelectorAll('.days').forEach(btn => {
+			btn.style.color = 'gray';
+		});
+		e.target.style.color = 'var(--text-color)';
 	}
 
 	createTask(day, index, text){
@@ -252,7 +263,10 @@ class SimpleApp {
 		}
 		else{
 			currentDay--;
-		}
+		}		
+		document.querySelectorAll('.days').forEach(btn =>{
+			btn.style.color = 'gray';
+		});
 		document.querySelectorAll('.days')[currentDay].style.color = 'var(--text-color)';
 	}
 

@@ -70,6 +70,11 @@ button, select, input, div{
 	flex: 1;
 	box-sizing: border-box;
 	font-size: clamp(1rem, 4vmin, 1.5rem);
+	min-height: 30px;
+}
+.completed{
+	text-decoration: line-through;
+	color: gray;
 }
 .task-label{
 	display: flex;
@@ -78,6 +83,7 @@ button, select, input, div{
 .task-label input[type="checkbox"]{
 	width: 20px;
 	height: 20px;
+	accent-color: lime;
 }
 .task-label span{
 	font-size: 20px;
