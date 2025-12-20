@@ -4,19 +4,19 @@ export default class ThemeManager{
 		this.theme = theme;
 		this.storageManager = storageManager;
 		this.elements = elements;
+		this.themedata = document.documentElement.dataset;
 	}
 
 	toggleTheme(){
 		const theme = this.storageManager.storage('theme') === 'light' ? 'dark' : 'light';
-		this.dataset.theme = theme;
+		this.themedata.theme = theme;
 		this.storageManager.storage('theme', theme);
 	}
 
 	updateTheme(){
-		if(this.storageManager.storage('theme') === 'light'){
-			this.dataset.theme = 'light';
-		}
-		this.elements.mode.textContent = this.storageManager.storage('theme') === 'light' ? 'Светлая' : 'Тёмная';
+		const currentTheme = this.storageManager.storage('theme') || 'dark'; // значение по умолчанию
+		this.themedata.theme = currentTheme;
+		this.elements.mode.textContent = currentTheme == 'dark' ? 'Тёмная' : 'Светлая';
 	}
 
 }

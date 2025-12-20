@@ -1,0 +1,17 @@
+#panel{
+	display: grid;
+	grid-template-columns: repeat(12, 1fr);
+	position: sticky;
+	top: 0;
+}
+
+#panel button{
+	min-width: 60px;
+	min-height: 22px;
+	font-size: clamp(0.5rem, 3vmin, 1rem);
+	grid-column: span 4;
+}
+
+#panel button:nth-child(-n+4){
+	grid-column: span 3;
+}

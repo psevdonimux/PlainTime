@@ -1,8 +1,56 @@
 export default class TaskManager{	
 
-	constructor(storageManager, panelManager){
+	constructor(storageManager, panelManager, elements, themeManager){
 		this.storageManager = storageManager;
 		this.panelManager = panelManager;
+		this.elements = elements;
+		this.themeManager = themeManager;
+	}
+
+	bindEvents(){
+		this.updateAllTaskLists();
+		this.initDragAndDrop();
+		document.onclick = (e) => {
+			const taskLabel = e.target.closest('.task-label');
+			const columnIndex = taskLabel?.dataset.columnIndex;
+			const taskIndex = taskLabel?.dataset.taskIndex;
+			if(e.target.classList.contains('add-task')){
+				const addButtons = [...document.querySelectorAll('.add-task')];
+				const columnIndex2 = addButtons.indexOf(e.target);
+				const inputField = e.target.closest('.input-row').querySelector('.input-task');
+				const taskValue = inputField.value.trim();
+				if(taskValue !== '') {
+					this.createTask(this.panelManager.getCurrentTaskDay(), columnIndex2, taskValue);
+					inputField.value = '';	
+				}
+			}
+			else if(e.target.classList.contains('close')){				
+				this.deleteTask(this.panelManager.getCurrentTaskDay(), columnIndex, taskIndex);
+			}
+			else if(e.target.classList.contains('checkbox')){			
+				this.updateTaskStatus(columnIndex, taskIndex);
+			}
+			else if(e.target.classList.contains('edit')){
+				this.editTask(columnIndex, taskIndex);
+			}
+			else if(e.target.classList.contains('days')){
+				this.panelManager.updateDays(e);
+			}
+		};
+		document.onkeydown = (e) => {
+			if(e.target.classList.contains('input-task') && e.key === 'Enter' && e.target.value.trim() !== ''){
+				const i = [...document.querySelectorAll('.input-task')].indexOf(e.target);
+				this.createTask(this.panelManager.getCurrentTaskDay(), i, e.target.value);
+				e.target.value = '';
+			}
+		};
+		this.elements.mode.onclick = () => {
+			this.themeManager.toggleTheme();
+			this.themeManager.updateTheme();
+		};	
+		this.elements.export.onclick = () => this.panelManager.handleExport();
+		this.elements.import.onclick = () => this.elements.fileInput.click();
+		this.elements.fileInput.onchange = (e) => this.panelManager.handleImport(e);
 	}
 
 	createTask(day, index, text){
@@ -17,7 +65,7 @@ export default class TaskManager{
 		this.updateAllTaskLists();
 	}
 
-	updateTaskStatus(columnIndex, taskIndex, completed = null){
+	updateTaskStatus(columnIndex, taskIndex){
 		let days = this.storageManager.storageJSON('days');
 		let currentDay = this.panelManager.getCurrentTaskDay();
 		if(days[currentDay] && days[currentDay][columnIndex] && days[currentDay][columnIndex][taskIndex]){
@@ -149,10 +197,9 @@ export default class TaskManager{
 		let offsetY = 0;
 		let clone = null;
 		let pointerId = null;
-		document.addEventListener('pointerdown', (e) => {
+		document.onpointerdown = (e) => {
 			if(!e.target.classList.contains('drag')) return;
 			const taskLabel = e.target.closest('.task-label');
-			if(!taskLabel) return;
 			e.preventDefault();
 			e.stopPropagation();
 			pointerId = e.pointerId;
@@ -160,7 +207,6 @@ export default class TaskManager{
 			startX = e.clientX;
 			startY = e.clientY;
 			setTimeout(() => {
-				if(!pointerId) return;
 				isDragging = true;
 				draggedElement = taskLabel;
 				draggedData = {
@@ -171,25 +217,16 @@ export default class TaskManager{
 				offsetX = startX - rect.left;
 				offsetY = startY - rect.top;
 				clone = draggedElement.cloneNode(true);
-				clone.style.position = 'fixed';
-				clone.style.width = rect.width + 'px';
-				clone.style.opacity = '0.8';
-				clone.style.zIndex = '1000';
-				clone.style.left = (startX - offsetX) + 'px';
-				clone.style.top = (startY - offsetY) + 'px';
-				clone.style.pointerEvents = 'none';
-				clone.style.background = 'var(--bg-color)';
+				clone.style.cssText = `position: fixed; width: ${rect.width}px; opacity: 0.8; z-index: 1000; left: ${startX - offsetX}px; top: ${startY - offsetY}px; pointer-events: none; background: var(--bg-color)`;
 				document.body.appendChild(clone);
-				draggedElement.style.opacity = '0.2';
 			}, 200);
-		});
-		document.addEventListener('pointermove', (e) => {
+		};
+		document.onpointermove = (e) => {
 			if(!isDragging || !clone) return;
 			e.preventDefault();
 			e.stopPropagation();
-			clone.style.left = (e.clientX - offsetX) + 'px';
-			clone.style.top = (e.clientY - offsetY) + 'px';
-		});
+			clone.style.cssText += `left: ${e.clientX - offsetX}px; top: ${e.clientY - offsetY}px`;
+		};
 		document.onpointerup = (e) => {
 			if(pointerId !== null && e.target.hasPointerCapture){
 				e.target.releasePointerCapture(pointerId);
@@ -200,9 +237,7 @@ export default class TaskManager{
 			}
 			e.preventDefault();
 			e.stopPropagation();
-			if(clone) clone.style.display = 'none';
 			const elemBelow = document.elementFromPoint(e.clientX, e.clientY);
-			if(clone) clone.style.display = 'block';
 			const dayBelow = elemBelow?.closest('.days');
 			const listBelow = elemBelow?.closest('.list');
 			let days = this.storageManager.storageJSON('days');
@@ -253,10 +288,6 @@ export default class TaskManager{
 				clone.remove();
 				clone = null;
 			}
-			if(draggedElement){
-				draggedElement.style.opacity = '';
-				draggedElement = null;
-			}
 			draggedData = null;
 			isDragging = false;
 			pointerId = null;
@@ -276,6 +307,5 @@ export default class TaskManager{
 			this.updateAllTaskLists();
 		};
 	}
-
 
 }
