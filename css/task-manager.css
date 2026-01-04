@@ -25,6 +25,12 @@
 	font-size: clamp(1rem, 4vmin, 1.5rem);
 }
 
+.add-task-all{
+	min-height: 44px;
+	aspect-ratio: 1 / 1;
+	font-size: clamp(1.5rem, 6vmin, 2rem);
+}
+
 .list{
 	margin: 0 auto;
 	max-width: 595px;
@@ -41,6 +47,7 @@
 
 .task-label{
 	display: flex;
+	text-align: left; 
 	gap: 0;
 }
 
@@ -64,4 +71,121 @@
 	touch-action: none;
 	cursor: move;
 	user-select: none;
+}
+
+#modal-task-all{
+	background: var(--bg-color);
+	color: var(--text-color);
+	border: 2px solid var(--text-color);
+	border-radius: 12px;
+	padding: 24px;
+	min-width: 340px;
+	max-width: 500px;
+	max-height: 80vh;
+	overflow-y: auto;
+}
+
+#modal-task-all::backdrop{
+	background: rgba(0, 0, 0, 0.7);
+}
+
+#modal-task-all h4{
+	margin: 16px 0 12px;
+	font: 600 18px/1 inherit;
+}
+
+#modal-task-all h4:first-child{
+	margin-top: 0;
+}
+
+.modal-section{
+	margin-bottom: 20px;
+}
+
+.modal-select-all{
+	display: block;
+	margin-bottom: 12px;
+	cursor: pointer;
+	user-select: none;
+}
+
+.modal-select-all input{
+	margin-right: 8px;
+	cursor: pointer;
+}
+
+.modal-task-item,
+.modal-day-item{
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 8px 12px;
+	margin-bottom: 6px;
+	background: rgba(128, 128, 128, 0.1);
+	border-radius: 6px;
+	cursor: pointer;
+	transition: background 0.2s;
+}
+
+.modal-task-item:hover,
+.modal-day-item:hover{
+	background: rgba(128, 128, 128, 0.2);
+}
+
+.modal-item-left{
+	display: flex;
+	align-items: center;
+	flex: 1;
+}
+
+.modal-item-left input[type="checkbox"]{
+	width: 20px;
+	height: 20px;
+	margin-right: 12px;
+	cursor: pointer;
+}
+
+.modal-item-text{
+	flex: 1;
+}
+
+.modal-divider{
+	height: 1px;
+	margin: 20px 0;
+	background: var(--text-color);
+	opacity: 0.3;
+}
+
+.modal-buttons{
+	display: flex;
+	gap: 12px;
+	margin-top: 24px;
+}
+
+.modal-buttons button{
+	flex: 1;
+	padding: 12px 24px;
+	border: none;
+	border-radius: 8px;
+	font-size: 16px;
+	cursor: pointer;
+	transition: opacity 0.2s;
+}
+
+.modal-buttons button:hover{
+	opacity: 0.8;
+}
+
+.modal-apply{
+	background: #4CAF50;
+	color: white;
+}
+
+.modal-cancel{
+	background: #666;
+	color: white;
+}
+
+.modal-task-number{
+	margin-right: 8px;
 }

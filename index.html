@@ -1,62 +1,139 @@
 <!DOCTYPE html>
 <html data-theme="dark" lang="ru">
-<head>
-	<title>PlainTime - Планировщик задач</title>
-	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<link rel="icon" href="images/icon.ico">
-	<link rel="stylesheet" href="css/theme-manager.css">
-	<link rel="stylesheet" href="css/base.css">
-	<link rel="stylesheet" href="css/task-manager.css">
-	<link rel="stylesheet" href="css/panel-manager.css">
-</head>
-<body>
-	<div id="panel">
-		<button class="days">Понедельник</button>
-		<button class="days">Вторник</button>
-		<button class="days">Среда</button>
-		<button class="days">Четверг</button>
-		<button class="days">Пятница</button>
-		<button class="days">Суббота</button>
-		<button class="days">Воскресенье</button>
-		<button id="mode">Тема</button>
-		<button id="import">Загрузить</button>
-        <input type="file" id="fileInput" style="display:none" accept=".json" />
-		<button id="export">Экспортировать</button>
-	</div>
-	<div>
-		<div class="column">
-			<h1>Основные задачи</h1>
-			<div class="list"></div>
-			<div class="input-row">
-				<input class="input-task"placeholder="Введите задачу">
-				<button class="add-task">+</button>
-			</div>	
+	<head>
+		<title>PlainTime - Планировщик задач</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<link rel="icon" href="images/icon.ico">
+		<link rel="stylesheet" href="css/theme-manager.css">
+		<link rel="stylesheet" href="css/base.css">
+		<link rel="stylesheet" href="css/task-manager.css">
+		<link rel="stylesheet" href="css/panel-manager.css">
+	</head>
+	<body>
+		<div id="panel">
+			<button class="days">Понедельник</button>
+			<button class="days">Вторник</button>
+			<button class="days">Среда</button>
+			<button class="days">Четверг</button>
+			<button class="days">Пятница</button>
+			<button class="days">Суббота</button>
+			<button class="days">Воскресенье</button>
+			<button id="mode">Тема</button>
+			<button id="import">Загрузить</button>
+			<input type="file" id="fileInput" style="display:none" accept=".json" />
+			<button id="export">Экспортировать</button>
 		</div>
-		<div class="column">
-			<h1>Второстепенные задачи</h1>
-			<div class="list"></div>
-			<div class="input-row">
-				<input class="input-task"placeholder="Введите задачу">
-				<button class="add-task">+</button>
-			</div>	
+		<div>
+			<div class="column">
+				<h1>Основные задачи</h1>
+				<div class="list"></div>
+				<div class="input-row">
+					<button class="add-task-all">*</button>
+					<input class="input-task" placeholder="Введите задачу">
+					<button class="add-task">+</button>
+				</div>
+			</div>
+			<div class="column">
+				<h1>Второстепенные задачи</h1>
+				<div class="list"></div>
+				<div class="input-row">
+					<button class="add-task-all">*</button>
+					<input class="input-task" placeholder="Введите задачу">
+					<button class="add-task">+</button>
+				</div>
+			</div>
+			<div class="column">
+				<h1>Мелкие задачи</h1>
+				<div class="list"></div>
+				<div class="input-row">
+					<button class="add-task-all">*</button>
+					<input class="input-task" placeholder="Введите задачу">
+					<button class="add-task">+</button>
+				</div>
+			</div>
+			<div class="column">
+				<h1>Ненужные задачи</h1>
+				<div class="list"></div>
+				<div class="input-row">
+					<button class="add-task-all">*</button>
+					<input class="input-task" placeholder="Введите задачу">
+					<button class="add-task">+</button>
+				</div>
+			</div>
 		</div>
-		<div class="column">
-			<h1>Мелкие задачи</h1>
-			<div class="list"></div>
-			<div class="input-row">
-				<input class="input-task"placeholder="Введите задачу">
-				<button class="add-task">+</button>
-			</div>	
-		</div>
-		<div class="column">
-			<h1>Ненужные задачи</h1>
-			<div class="list"></div>
-			<div class="input-row">
-				<input class="input-task"placeholder="Введите задачу">
-				<button class="add-task">+</button>
-			</div>	
-		</div>
-	</div>
-	<script type="module" src="js/main.js"></script>
-</body>
+		<dialog id="modal-task-all">
+			<h4>Выберите задачи для переноса</h4>
+			<div class="modal-section">
+				<label class="modal-select-all">
+					<input type="checkbox" id="select-all-tasks">
+					Выбрать все
+				</label>
+				<div id="modal-tasks-list"></div>
+			</div>
+			<div class="modal-divider"></div>
+			<h4>Выберите дни для переноса</h4>
+			<div class="modal-section">
+				<label class="modal-select-all">
+					<input type="checkbox" id="select-all-days">
+					Выбрать все
+				</label>
+				<div id="modal-days-list">
+					<label class="modal-day-item">
+						<div class="modal-item-left">
+							<input type="checkbox" class="day-checkbox" value="1">
+							<span class="modal-item-text">Понедельник</span>
+						</div>
+						<div class="modal-item-right"></div>
+					</label>
+					<label class="modal-day-item">
+						<div class="modal-item-left">
+							<input type="checkbox" class="day-checkbox" value="2">
+							<span class="modal-item-text">Вторник</span>
+						</div>
+						<div class="modal-item-right"></div>
+					</label>
+					<label class="modal-day-item">
+						<div class="modal-item-left">
+							<input type="checkbox" class="day-checkbox" value="3">
+							<span class="modal-item-text">Среда</span>
+						</div>
+						<div class="modal-item-right"></div>
+					</label>
+					<label class="modal-day-item">
+						<div class="modal-item-left">
+							<input type="checkbox" class="day-checkbox" value="4">
+							<span class="modal-item-text">Четверг</span>
+						</div>
+						<div class="modal-item-right"></div>
+					</label>
+					<label class="modal-day-item">
+						<div class="modal-item-left">
+							<input type="checkbox" class="day-checkbox" value="5">
+							<span class="modal-item-text">Пятница</span>
+						</div>
+						<div class="modal-item-right"></div>
+					</label>
+					<label class="modal-day-item">
+						<div class="modal-item-left">
+							<input type="checkbox" class="day-checkbox" value="6">
+							<span class="modal-item-text">Суббота</span>
+						</div>
+						<div class="modal-item-right"></div>
+					</label>
+					<label class="modal-day-item">
+						<div class="modal-item-left">
+							<input type="checkbox" class="day-checkbox" value="0">
+							<span class="modal-item-text">Воскресенье</span>
+						</div>
+						<div class="modal-item-right"></div>
+					</label>
+				</div>
+			</div>
+			<div class="modal-buttons">
+				<button class="modal-apply">Применить</button>
+				<button class="modal-cancel">Отмена</button>
+			</div>
+		</dialog>
+		<script type="module" src="js/main.js"></script>
+	</body>
 </html>

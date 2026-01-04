@@ -5,11 +5,14 @@ export default class TaskManager{
 		this.panelManager = panelManager;
 		this.elements = elements;
 		this.themeManager = themeManager;
+		this.modal = document.getElementById('modal-task-all');
+		this.currentColumnForModal = null;
 	}
 
 	bindEvents(){
 		this.updateAllTaskLists();
 		this.initDragAndDrop();
+		this.initModalEvents();
 		document.onclick = (e) => {
 			const taskLabel = e.target.closest('.task-label');
 			const columnIndex = taskLabel?.dataset.columnIndex;
@@ -19,9 +22,19 @@ export default class TaskManager{
 				const columnIndex2 = addButtons.indexOf(e.target);
 				const inputField = e.target.closest('.input-row').querySelector('.input-task');
 				const taskValue = inputField.value.trim();
-				if(taskValue !== '') {
+				if(taskValue !== ''){
 					this.createTask(this.panelManager.getCurrentTaskDay(), columnIndex2, taskValue);
 					inputField.value = '';	
+				}
+			}
+			else if(e.target.classList.contains('add-task-all')){
+				const addAllButtons = [...document.querySelectorAll('.add-task-all')];
+				this.currentColumnForModal = addAllButtons.indexOf(e.target);		
+				const days = this.storageManager.storageJSON('days');
+				const currentDay = this.panelManager.getCurrentTaskDay();
+				const currentTasks = days[currentDay]?.[this.currentColumnForModal] || [];	
+				if(currentTasks.length > 0){
+					this.openModalForTask(this.currentColumnForModal);
 				}
 			}
 			else if(e.target.classList.contains('close')){				
@@ -188,124 +201,145 @@ export default class TaskManager{
 	}
 
 	initDragAndDrop(){
-		let draggedElement = null;
-		let draggedData = null;
-		let isDragging = false;
-		let startX = 0;
-		let startY = 0;
-		let offsetX = 0;
-		let offsetY = 0;
-		let clone = null;
-		let pointerId = null;
-		document.onpointerdown = (e) => {
-			if(!e.target.classList.contains('drag')) return;
-			const taskLabel = e.target.closest('.task-label');
-			e.preventDefault();
-			e.stopPropagation();
-			pointerId = e.pointerId;
-			e.target.setPointerCapture(e.pointerId);
-			startX = e.clientX;
-			startY = e.clientY;
-			setTimeout(() => {
-				isDragging = true;
-				draggedElement = taskLabel;
-				draggedData = {
-					columnIndex: parseInt(taskLabel.dataset.columnIndex),
-					taskIndex: parseInt(taskLabel.dataset.taskIndex)
-				};
-				const rect = draggedElement.getBoundingClientRect();
-				offsetX = startX - rect.left;
-				offsetY = startY - rect.top;
-				clone = draggedElement.cloneNode(true);
-				clone.style.cssText = `position: fixed; width: ${rect.width}px; opacity: 0.8; z-index: 1000; left: ${startX - offsetX}px; top: ${startY - offsetY}px; pointer-events: none; background: var(--bg-color)`;
-				document.body.appendChild(clone);
+		let el,data,clone,pid,drag,sx,sy,ox,oy,D=document,Q=(s,p=D)=>[...p.querySelectorAll(s)];
+		const reset=()=>{clone?.remove();clone=el=data=pid=null;drag=0;this.updateAllTaskLists()};
+		const rel=e=>pid!=null&&e.target.hasPointerCapture?.(pid)&&e.target.releasePointerCapture(pid);
+		D.onpointerdown=e=>{
+			if(!e.target.classList.contains('drag'))return;
+			const t=e.target.closest('.task-label');
+			e.preventDefault();e.stopPropagation();pid=e.pointerId;e.target.setPointerCapture(pid);sx=e.clientX;sy=e.clientY;
+			setTimeout(()=>{
+				drag=1;el=t;data={col:+t.dataset.columnIndex,idx:+t.dataset.taskIndex};
+				const r=el.getBoundingClientRect();ox=sx-r.left;oy=sy-r.top;
+				clone=el.cloneNode(1);
+				clone.style.cssText=`position:fixed;width:${r.width}px;opacity:.8;z-index:1000;left:${sx-ox}px;top:${sy-oy}px;pointer-events:none;background:var(--bg-color)`;
+				D.body.appendChild(clone);
 			}, 200);
 		};
-		document.onpointermove = (e) => {
-			if(!isDragging || !clone) return;
-			e.preventDefault();
-			e.stopPropagation();
-			clone.style.cssText += `left: ${e.clientX - offsetX}px; top: ${e.clientY - offsetY}px`;
+		D.onpointermove=e=>{
+			if(!drag||!clone)return;
+			e.preventDefault();e.stopPropagation();clone.style.left=e.clientX-ox+'px';clone.style.top=e.clientY-oy+'px';
 		};
-		document.onpointerup = (e) => {
-			if(pointerId !== null && e.target.hasPointerCapture){
-				e.target.releasePointerCapture(pointerId);
-			}
-			if(!isDragging || !draggedElement){
-				pointerId = null;
-				return;
-			}
-			e.preventDefault();
-			e.stopPropagation();
-			const elemBelow = document.elementFromPoint(e.clientX, e.clientY);
-			const dayBelow = elemBelow?.closest('.days');
-			const listBelow = elemBelow?.closest('.list');
-			let days = this.storageManager.storageJSON('days');
-			const sourceCol = draggedData.columnIndex;
-			const sourceIdx = draggedData.taskIndex;
-			const currentDay = this.panelManager.getCurrentTaskDay();
-			if(days[currentDay] && days[currentDay][sourceCol]){
-				const task = days[currentDay][sourceCol][sourceIdx];
-				if(dayBelow){
-					const allDays = Array.from(document.querySelectorAll('.days'));
-					let domIndex = allDays.indexOf(dayBelow);
-					let targetDayId = (domIndex === 6) ? 0 : domIndex + 1;
-					if(targetDayId !== currentDay){
-						days[currentDay][sourceCol].splice(sourceIdx, 1);
-						if(days[currentDay][sourceCol].length === 0) delete days[currentDay][sourceCol];
-						if(Object.keys(days[currentDay]).length === 0) delete days[currentDay];
-						days[targetDayId] = days[targetDayId] ?? {};
-						days[targetDayId][sourceCol] = days[targetDayId][sourceCol] ?? [];
-						days[targetDayId][sourceCol].push(task);
-						this.storageManager.storageJSON('days', days);
-					}
+		D.onpointerup=e=>{
+			rel(e);if(!drag||!el)return void(pid=null);
+			e.preventDefault();e.stopPropagation();
+			const b=D.elementFromPoint(e.clientX,e.clientY),dayB=b?.closest('.days'),listB=b?.closest('.list'),days=this.storageManager.storageJSON('days'),{col,idx}=data,cur=this.panelManager.getCurrentTaskDay();
+			if(days[cur]?.[col]){
+				const task=days[cur][col][idx],src=days[cur][col],rm=()=>{src.splice(idx,1);!src.length&&delete days[cur][col]};
+				if(dayB){
+					const t=(Q('.days').indexOf(dayB)+1)%7;
+					t!==cur&&(rm(),!Object.keys(days[cur]).length&&delete days[cur],(days[t]??={})[col]??=[],days[t][col].push(task),this.storageManager.storageJSON('days',days));
 				}
-				else if(listBelow){
-					const allLists = Array.from(document.querySelectorAll('.list'));
-					const targetColumn = allLists.indexOf(listBelow);
-					const taskBelow = elemBelow.closest('.task-label');
-					let targetIndex;
-					if(taskBelow){
-						const rect = taskBelow.getBoundingClientRect();
-						const middleY = rect.top + rect.height / 2;
-						const tIndex = parseInt(taskBelow.dataset.taskIndex);
-						targetIndex = e.clientY < middleY ? tIndex : tIndex + 1;
-					}
-					else{
-						targetIndex = listBelow.querySelectorAll('.task-label').length;
-					}
-					days[currentDay][sourceCol].splice(sourceIdx, 1);
-					if(days[currentDay][sourceCol].length === 0) delete days[currentDay][sourceCol];
-					days[currentDay][targetColumn] = days[currentDay][targetColumn] ?? [];
-					if(sourceCol === targetColumn && targetIndex > sourceIdx){
-						targetIndex--;
-					}
-					days[currentDay][targetColumn].splice(targetIndex, 0, task);
-					this.storageManager.storageJSON('days', days);
+				else if(listB){
+					const tCol=Q('.list').indexOf(listB),taskB=b.closest('.task-label');
+					let ti=taskB?((r,i=+taskB.dataset.taskIndex)=>e.clientY<r.top+r.height/2?i:i+1)(taskB.getBoundingClientRect()):Q('.task-label',listB).length;
+					rm();days[cur][tCol]??=[];col===tCol&&ti>idx&&ti--;days[cur][tCol].splice(ti,0,task);this.storageManager.storageJSON('days',days);
 				}
 			}
-			if(clone){
-				clone.remove();
-				clone = null;
-			}
-			draggedData = null;
-			isDragging = false;
-			pointerId = null;
-			this.updateAllTaskLists();
+			reset();
 		};
-		document.onpointercancel = (e) => {
-			if(pointerId !== null && e.target.hasPointerCapture){
-				e.target.releasePointerCapture(pointerId);
-			}
-			if(clone) clone.remove();
-			if(draggedElement) draggedElement.style.opacity = '';
-			clone = null;
-			draggedElement = null;
-			draggedData = null;
-			isDragging = false;
-			pointerId = null;
-			this.updateAllTaskLists();
-		};
+		D.onpointercancel=e=>{rel(e);reset()};
 	}
 
+	initModalEvents(){
+		const selectAllTasks = document.getElementById('select-all-tasks');
+		const selectAllDays = document.getElementById('select-all-days');
+		const modalApply = this.modal.querySelector('.modal-apply');
+		const modalCancel = this.modal.querySelector('.modal-cancel');
+		selectAllTasks?.addEventListener('change', (e) => {
+				const taskCheckboxes = this.modal.querySelectorAll('.task-checkbox');
+				taskCheckboxes.forEach(cb => cb.checked = e.target.checked);
+		});
+		selectAllDays?.addEventListener('change', (e) => {
+				const dayCheckboxes = this.modal.querySelectorAll('.day-checkbox');
+				dayCheckboxes.forEach(cb => cb.checked = e.target.checked);
+		});
+		modalApply?.addEventListener('click', () => this.applyModalSelection());
+		modalCancel?.addEventListener('click', () => this.modal.close());
+	}
+
+	openModalForTask(columnIndex){
+		this.currentColumnForModal = columnIndex;
+		const days = this.storageManager.storageJSON('days');
+		const currentDay = this.panelManager.getCurrentTaskDay();
+		const currentTasks = days[currentDay]?.[columnIndex] || [];
+		const tasksListContainer = document.getElementById('modal-tasks-list');		
+		if(tasksListContainer){
+				tasksListContainer.innerHTML = ''; 
+				currentTasks.forEach((task, index) => {
+						const taskItem = this.createModalTaskItem(index);
+						const textSpan = taskItem.querySelector('.modal-item-text');
+						const taskTextNode = document.createTextNode(' ' + task.task);
+						textSpan.appendChild(taskTextNode);
+						tasksListContainer.appendChild(taskItem);
+				});
+		}
+		
+		document.getElementById('select-all-tasks').checked = false;
+		document.getElementById('select-all-days').checked = false;
+		this.modal.querySelectorAll('.task-checkbox').forEach(cb => cb.checked = false);
+		this.modal.querySelectorAll('.day-checkbox').forEach(cb => cb.checked = false);
+		this.modal.showModal();
+	}
+
+	createModalTaskItem(taskIndex){
+		const label = document.createElement('label');
+		label.className = 'modal-task-item';
+		const leftDiv = document.createElement('div');
+		leftDiv.className = 'modal-item-left';
+		const checkbox = document.createElement('input');
+		checkbox.type = 'checkbox';
+		checkbox.className = 'task-checkbox';
+		checkbox.dataset.taskIndex = taskIndex;
+		const textSpan = document.createElement('span');
+		textSpan.className = 'modal-item-text';				
+		if(taskIndex >= 0){
+				const numberSpan = document.createElement('span');
+				numberSpan.className = 'modal-task-number';
+				numberSpan.textContent = `${taskIndex + 1}.`;
+				textSpan.appendChild(numberSpan);
+		}				
+		const rightDiv = document.createElement('div');
+		rightDiv.className = 'modal-item-right';
+		leftDiv.appendChild(checkbox);
+		leftDiv.appendChild(textSpan);				
+		label.appendChild(leftDiv);
+		label.appendChild(rightDiv);
+		return label;
+	}
+
+	applyModalSelection(){
+		const selectedDays = [...this.modal.querySelectorAll('.day-checkbox:checked')].map(cb => parseInt(cb.value));
+		const selectedTasks = [...this.modal.querySelectorAll('.task-checkbox:checked')];	
+		if(selectedDays.length === 0 || selectedTasks.length === 0){
+				this.modal.close();
+				return;
+		}		
+		const days = this.storageManager.storageJSON('days');
+		const currentDay = this.panelManager.getCurrentTaskDay();
+		const columnIndex = this.currentColumnForModal;		
+		selectedDays.forEach(dayIndex => {
+				if(dayIndex === currentDay) return;				 
+				days[dayIndex] = days[dayIndex] || {};
+				days[dayIndex][columnIndex] = days[dayIndex][columnIndex] || [];				
+				selectedTasks.forEach(taskCheckbox => {
+						const taskIndex = parseInt(taskCheckbox.dataset.taskIndex);
+						const sourceTask = days[currentDay]?.[columnIndex]?.[taskIndex];												
+						if(sourceTask){
+								days[dayIndex][columnIndex].push({
+										task: sourceTask.task,
+										completed: false
+								});
+						}
+				});
+		});
+		
+		this.storageManager.storageJSON('days', days);
+		this.updateAllTaskLists();
+		const tasksListContainer = document.getElementById('modal-tasks-list');
+		if(tasksListContainer){
+				tasksListContainer.innerHTML = '';
+		}		
+		this.modal.close();
+	}
 }
