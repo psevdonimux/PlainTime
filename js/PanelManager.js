@@ -17,12 +17,7 @@ export default class PanelManager{
 
 	updateDays(e){
 		let clickedIndex = Array.from(e.target.closest('#panel').querySelectorAll('.days')).indexOf(e.target);
-		if(clickedIndex == 6){
-			clickedIndex = 0;
-		}
-		else{
-			clickedIndex++;
-		}
+		clickedIndex = clickedIndex == 6 ? 0 : ++clickedIndex;
 		this.setCurrentTaskDay(clickedIndex);
 		document.querySelectorAll('.days').forEach(btn => {
 			btn.style.color = 'gray';

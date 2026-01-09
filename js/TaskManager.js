@@ -17,17 +17,17 @@ export default class TaskManager{
 			const taskLabel = e.target.closest('.task-label');
 			const columnIndex = taskLabel?.dataset.columnIndex;
 			const taskIndex = taskLabel?.dataset.taskIndex;
-			if(e.target.classList.contains('add-task')){
+			const classList = e.target.classList;
+			if(classList.contains('add-task')){
 				const addButtons = [...document.querySelectorAll('.add-task')];
 				const columnIndex2 = addButtons.indexOf(e.target);
 				const inputField = e.target.closest('.input-row').querySelector('.input-task');
 				const taskValue = inputField.value.trim();
-				if(taskValue !== ''){
-					this.createTask(this.panelManager.getCurrentTaskDay(), columnIndex2, taskValue);
-					inputField.value = '';	
-				}
+				if(!taskValue) return;
+				this.createTask(this.panelManager.getCurrentTaskDay(), columnIndex2, taskValue);
+				inputField.value = '';	
 			}
-			else if(e.target.classList.contains('add-task-all')){
+			else if(classList.contains('add-task-all')){
 				const addAllButtons = [...document.querySelectorAll('.add-task-all')];
 				this.currentColumnForModal = addAllButtons.indexOf(e.target);		
 				const days = this.storageManager.storageJSON('days');
@@ -37,21 +37,21 @@ export default class TaskManager{
 					this.openModalForTask(this.currentColumnForModal);
 				}
 			}
-			else if(e.target.classList.contains('close')){				
+			else if(classList.contains('close')){				
 				this.deleteTask(this.panelManager.getCurrentTaskDay(), columnIndex, taskIndex);
 			}
-			else if(e.target.classList.contains('checkbox')){			
+			else if(classList.contains('checkbox')){			
 				this.updateTaskStatus(columnIndex, taskIndex);
 			}
-			else if(e.target.classList.contains('edit')){
+			else if(classList.contains('edit')){
 				this.editTask(columnIndex, taskIndex);
 			}
-			else if(e.target.classList.contains('days')){
+			else if(classList.contains('days')){
 				this.panelManager.updateDays(e);
 			}
 		};
 		document.onkeydown = (e) => {
-			if(e.target.classList.contains('input-task') && e.key === 'Enter' && e.target.value.trim() !== ''){
+			if(e.target.classList.contains('input-task') && e.key === 'Enter' && e.target.value.trim()){
 				const i = [...document.querySelectorAll('.input-task')].indexOf(e.target);
 				this.createTask(this.panelManager.getCurrentTaskDay(), i, e.target.value);
 				e.target.value = '';
@@ -68,8 +68,8 @@ export default class TaskManager{
 
 	createTask(day, index, text){
 		let days = this.storageManager.storageJSON('days');
-		days[day] = days[day] ?? {}
-		days[day][index] = days[day][index] ?? [];
+		days[day] ??= {};
+		days[day][index] ??= [];
 		days[day][index].push({
 			"task": text,
 			"completed": false,
@@ -81,27 +81,21 @@ export default class TaskManager{
 	updateTaskStatus(columnIndex, taskIndex){
 		let days = this.storageManager.storageJSON('days');
 		let currentDay = this.panelManager.getCurrentTaskDay();
-		if(days[currentDay] && days[currentDay][columnIndex] && days[currentDay][columnIndex][taskIndex]){
-			let task = days[currentDay][columnIndex][taskIndex];
-			task.completed = !task.completed;
-			this.storageManager.storageJSON('days', days);
-			this.updateAllTaskLists();
-		}
+		if(!days[currentDay]?.[columnIndex]?.[taskIndex]) return;
+		let task = days[currentDay][columnIndex][taskIndex];
+		task.completed = !task.completed;
+		this.storageManager.storageJSON('days', days);
+		this.updateAllTaskLists();
 	}
 
 	deleteTask(day, columnIndex, taskIndex){
 		let days = this.storageManager.storageJSON('days');
-		if(days[day] && days[day][columnIndex] && days[day][columnIndex][taskIndex]){
-			days[day][columnIndex].splice(taskIndex, 1);
-			if(days[day][columnIndex].length === 0){
-				delete days[day][columnIndex];
-			}
-			if(Object.keys(days[day]).length === 0){
-				delete days[day];
-			}
-			this.storageManager.storageJSON('days', days);
-			this.updateAllTaskLists();
-		}
+		if(!days[day]?.[columnIndex]?.[taskIndex]) return;
+		days[day][columnIndex].splice(taskIndex, 1);
+		if(!days[day][columnIndex].length) delete days[day][columnIndex];
+		if(!Object.keys(days[day]).length) delete days[day];
+		this.storageManager.storageJSON('days', days);
+		this.updateAllTaskLists();
 	}
 
 	updateAllTaskLists(targetDay = null){
@@ -110,7 +104,7 @@ export default class TaskManager{
 		for (let columnIndex = 0; columnIndex < 4; columnIndex++){
 			let taskContainer = document.getElementsByClassName('list')[columnIndex];
 			if(taskContainer){
-				taskContainer.innerHTML = '';
+				taskContainer.replaceChildren();
 				if(days[currentDay] && days[currentDay][columnIndex]){
 					days[currentDay][columnIndex].forEach((taskData, taskIndex) => {
 						let taskLabel = document.createElement('label');
@@ -135,24 +129,16 @@ export default class TaskManager{
 						let close = document.createElement('span');
 						close.className = 'close';
 						close.textContent = '✖';
-						taskLabel.appendChild(checkbox);
-						taskLabel.appendChild(task);
-						taskDiv.appendChild(drag);
-						taskDiv.appendChild(edit);
-						taskDiv.appendChild(close);
-						taskLabel.appendChild(taskDiv);
-						taskContainer.appendChild(taskLabel);
+						taskLabel.append(checkbox, task);
+						taskDiv.append(drag, edit, close);
+						taskLabel.append(taskDiv);
+						taskContainer.append(taskLabel);
 					});
 				}
 			}
 		}
-		if(currentDay == 0){
-			currentDay = 6;
-		}
-		else{
-			currentDay--;
-		}		
-		document.querySelectorAll('.days').forEach(btn =>{
+		currentDay = !currentDay ? 6 : --currentDay;
+		document.querySelectorAll('.days').forEach(btn => {
 			btn.style.color = 'gray';
 		});
 		document.querySelectorAll('.days')[currentDay].style.color = 'var(--text-color)';
@@ -161,43 +147,39 @@ export default class TaskManager{
 	editTask(columnIndex, taskIndex){
 		let days = this.storageManager.storageJSON('days');
 		let currentDay = this.panelManager.getCurrentTaskDay();
-		if(days[currentDay] && days[currentDay][columnIndex] && days[currentDay][columnIndex][taskIndex]){
-			const taskLabel = document.querySelector(`[data-column-index="${columnIndex}"][data-task-index="${taskIndex}"]`);
-			const taskSpan = taskLabel.querySelector('span:not(.edit):not(.close)');
-			const originalText = days[currentDay][columnIndex][taskIndex].task;
-			const taskNumber = `${taskIndex + 1}. `;
-			const input = document.createElement('input');
-			input.type = 'text';
-			input.value = originalText;
-			input.className = 'edit-input';
-			input.style.cssText = 'flex: 1; padding: 4px; border: 1px solid var(--text-color); background: var(--bg-color); color: var(--text-color); border-radius: 4px;';
-			taskSpan.replaceWith(input);
-			input.focus();
-			input.select();
-			const saveEdit = () => {
-				const newText = input.value.trim();
-				if(newText !== '' && newText !== originalText){
-					days[currentDay][columnIndex][taskIndex].task = newText;
-					this.storageManager.storageJSON('days', days);
-				}
-				this.updateAllTaskLists();
-			};
-			const cancelEdit = () => {
-				this.updateAllTaskLists();
-			};
-			input.onkeydown = (e) => {
-				if(e.key === 'Enter'){
-					e.preventDefault();
-					saveEdit();
-				} else if(e.key === 'Escape'){
-					e.preventDefault();
-					cancelEdit();
-				}
-			};
-			input.onblur = () => {
+		if(!days[currentDay]?.[columnIndex]?.[taskIndex]) return;
+		const taskLabel = document.querySelector(`[data-column-index="${columnIndex}"][data-task-index="${taskIndex}"]`);
+		const taskSpan = taskLabel.querySelector('span:not(.edit):not(.close)');
+		const originalText = days[currentDay][columnIndex][taskIndex].task;
+		const taskNumber = `${taskIndex + 1}. `;
+		const input = document.createElement('input');
+		input.type = 'text';
+		input.value = originalText;
+		input.className = 'edit-input';
+		input.style.cssText = 'flex: 1; padding: 4px; border: 1px solid var(--text-color); background: var(--bg-color); color: var(--text-color); border-radius: 4px;';
+		taskSpan.replaceWith(input);
+		input.focus();
+		input.select();
+		const saveEdit = () => {
+			const newText = input.value.trim();
+			if(newText !== '' && newText !== originalText){
+				days[currentDay][columnIndex][taskIndex].task = newText;
+				this.storageManager.storageJSON('days', days);
+			}
+			this.updateAllTaskLists();
+		};
+		const cancelEdit = () => {
+			this.updateAllTaskLists();
+		};
+		input.onkeydown = (e) => {
+			if(e.key === 'Enter'){
+				e.preventDefault();
 				saveEdit();
-			};
-		}
+			}			
+		};
+		input.onblur = () => {
+			saveEdit();
+		};
 	}
 
 	initDragAndDrop(){
@@ -213,7 +195,7 @@ export default class TaskManager{
 				const r=el.getBoundingClientRect();ox=sx-r.left;oy=sy-r.top;
 				clone=el.cloneNode(1);
 				clone.style.cssText=`position:fixed;width:${r.width}px;opacity:.8;z-index:1000;left:${sx-ox}px;top:${sy-oy}px;pointer-events:none;background:var(--bg-color)`;
-				D.body.appendChild(clone);
+				D.body.append(clone);
 			}, 200);
 		};
 		D.onpointermove=e=>{
@@ -242,20 +224,10 @@ export default class TaskManager{
 	}
 
 	initModalEvents(){
-		const selectAllTasks = document.getElementById('select-all-tasks');
-		const selectAllDays = document.getElementById('select-all-days');
-		const modalApply = this.modal.querySelector('.modal-apply');
-		const modalCancel = this.modal.querySelector('.modal-cancel');
-		selectAllTasks?.addEventListener('change', (e) => {
-				const taskCheckboxes = this.modal.querySelectorAll('.task-checkbox');
-				taskCheckboxes.forEach(cb => cb.checked = e.target.checked);
-		});
-		selectAllDays?.addEventListener('change', (e) => {
-				const dayCheckboxes = this.modal.querySelectorAll('.day-checkbox');
-				dayCheckboxes.forEach(cb => cb.checked = e.target.checked);
-		});
-		modalApply?.addEventListener('click', () => this.applyModalSelection());
-		modalCancel?.addEventListener('click', () => this.modal.close());
+		document.getElementById('select-all-tasks').onchange = (e) => this.modal.querySelectorAll('.task-checkbox').forEach(cb => cb.checked = e.target.checked);
+		document.getElementById('select-all-days').onchange = (e) => this.modal.querySelectorAll('.day-checkbox').forEach(cb => cb.checked = e.target.checked);
+		this.modal.querySelector('.modal-apply').onclick = () => this.applyModalSelection();
+		this.modal.querySelector('.modal-cancel').onclick = () => this.modal.close();
 	}
 
 	openModalForTask(columnIndex){
@@ -264,17 +236,12 @@ export default class TaskManager{
 		const currentDay = this.panelManager.getCurrentTaskDay();
 		const currentTasks = days[currentDay]?.[columnIndex] || [];
 		const tasksListContainer = document.getElementById('modal-tasks-list');		
-		if(tasksListContainer){
-				tasksListContainer.innerHTML = ''; 
-				currentTasks.forEach((task, index) => {
-						const taskItem = this.createModalTaskItem(index);
-						const textSpan = taskItem.querySelector('.modal-item-text');
-						const taskTextNode = document.createTextNode(' ' + task.task);
-						textSpan.appendChild(taskTextNode);
-						tasksListContainer.appendChild(taskItem);
-				});
-		}
-		
+		tasksListContainer.replaceChildren();
+		currentTasks.forEach((task, index) => {
+			const taskItem = this.createModalTaskItem(index);	
+			taskItem.querySelector('.modal-item-text').textContent = ' ' + task.task;
+			tasksListContainer.append(taskItem);
+		});		
 		document.getElementById('select-all-tasks').checked = false;
 		document.getElementById('select-all-days').checked = false;
 		this.modal.querySelectorAll('.task-checkbox').forEach(cb => cb.checked = false);
@@ -294,52 +261,42 @@ export default class TaskManager{
 		const textSpan = document.createElement('span');
 		textSpan.className = 'modal-item-text';				
 		if(taskIndex >= 0){
-				const numberSpan = document.createElement('span');
-				numberSpan.className = 'modal-task-number';
-				numberSpan.textContent = `${taskIndex + 1}.`;
-				textSpan.appendChild(numberSpan);
+			const numberSpan = document.createElement('span');
+			numberSpan.className = 'modal-task-number';
+			numberSpan.textContent = `${taskIndex + 1}.`;
+			textSpan.append(numberSpan);
 		}				
 		const rightDiv = document.createElement('div');
 		rightDiv.className = 'modal-item-right';
-		leftDiv.appendChild(checkbox);
-		leftDiv.appendChild(textSpan);				
-		label.appendChild(leftDiv);
-		label.appendChild(rightDiv);
+		leftDiv.append(checkbox, textSpan);				
+		label.append(leftDiv, rightDiv);
 		return label;
 	}
 
 	applyModalSelection(){
 		const selectedDays = [...this.modal.querySelectorAll('.day-checkbox:checked')].map(cb => parseInt(cb.value));
 		const selectedTasks = [...this.modal.querySelectorAll('.task-checkbox:checked')];	
-		if(selectedDays.length === 0 || selectedTasks.length === 0){
-				this.modal.close();
-				return;
-		}		
 		const days = this.storageManager.storageJSON('days');
 		const currentDay = this.panelManager.getCurrentTaskDay();
 		const columnIndex = this.currentColumnForModal;		
 		selectedDays.forEach(dayIndex => {
-				if(dayIndex === currentDay) return;				 
-				days[dayIndex] = days[dayIndex] || {};
-				days[dayIndex][columnIndex] = days[dayIndex][columnIndex] || [];				
+			if(dayIndex === currentDay) return;				 
+				days[dayIndex] ??= {};
+				days[dayIndex][columnIndex] ??= [];				
 				selectedTasks.forEach(taskCheckbox => {
-						const taskIndex = parseInt(taskCheckbox.dataset.taskIndex);
-						const sourceTask = days[currentDay]?.[columnIndex]?.[taskIndex];												
-						if(sourceTask){
-								days[dayIndex][columnIndex].push({
-										task: sourceTask.task,
-										completed: false
-								});
-						}
+					const taskIndex = parseInt(taskCheckbox.dataset.taskIndex);
+					const sourceTask = days[currentDay]?.[columnIndex]?.[taskIndex];												
+					if(sourceTask){
+						days[dayIndex][columnIndex].push({
+							task: sourceTask.task,
+							completed: false
+						});
+					}
 				});
 		});
-		
 		this.storageManager.storageJSON('days', days);
 		this.updateAllTaskLists();
-		const tasksListContainer = document.getElementById('modal-tasks-list');
-		if(tasksListContainer){
-				tasksListContainer.innerHTML = '';
-		}		
+		document.getElementById('modal-tasks-list').replaceChildren();
 		this.modal.close();
 	}
 }
