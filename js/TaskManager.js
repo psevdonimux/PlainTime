@@ -33,9 +33,7 @@ export default class TaskManager{
 				const days = this.storageManager.storageJSON('days');
 				const currentDay = this.panelManager.getCurrentTaskDay();
 				const currentTasks = days[currentDay]?.[this.currentColumnForModal] || [];	
-				if(currentTasks.length > 0){
-					this.openModalForTask(this.currentColumnForModal);
-				}
+				if(currentTasks.length) this.openModalForTask(this.currentColumnForModal);
 			}
 			else if(classList.contains('close')){				
 				this.deleteTask(this.panelManager.getCurrentTaskDay(), columnIndex, taskIndex);
