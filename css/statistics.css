@@ -1,0 +1,66 @@
+#modal-statistics{
+	background: var(--bg-color);
+	color: var(--text-color);
+	border: 2px solid var(--text-color);
+	border-radius: 12px;
+	padding: 24px;
+	min-width: 300px;
+}
+
+#modal-statistics::backdrop{
+	background: rgba(0, 0, 0, 0.7);
+}
+
+.stat-item{
+	display: flex;
+	justify-content: space-between;
+	padding: 8px;
+	border-bottom: 1px solid rgba(128,128,128,0.3);
+}
+
+.stat-day{
+	font-weight: bold;
+	margin-top: 16px;
+	margin-bottom: 8px;
+}
+
+.stat-completed{
+	color: #4CAF50;
+}
+
+.stat-pending{
+	color: #f44336;
+}
+
+.stat-summary{
+	margin-bottom: 20px;
+	padding-bottom: 16px;
+	border-bottom: 2px solid var(--text-color);
+}
+
+.stat-summary-title{
+	font-weight: bold;
+	margin-bottom: 12px;
+	font-size: 16px;
+}
+
+.stat-summary-item{
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding: 6px 0;
+	gap: 12px;
+}
+
+.stat-summary-item > span:first-child{
+	flex: 1;
+	min-width: 0;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.stat-summary-item > span:last-child{
+	flex-shrink: 0;
+	white-space: nowrap;
+}

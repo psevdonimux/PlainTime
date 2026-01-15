@@ -8,6 +8,9 @@
 		<link rel="stylesheet" href="css/base.css">
 		<link rel="stylesheet" href="css/task-manager.css">
 		<link rel="stylesheet" href="css/panel-manager.css">
+		<link rel="stylesheet" href="css/subtask.css">
+		<link rel="stylesheet" href="css/time-modal.css">
+		<link rel="stylesheet" href="css/statistics.css">
 	</head>
 	<body>
 		<div id="panel">
@@ -22,19 +25,24 @@
 			<button id="import">Загрузить</button>
 			<input type="file" id="fileInput" style="display:none" accept=".json" />
 			<button id="export">Экспортировать</button>
+			<button id="statistics">Статистика</button>
 		</div>
 		<div>
 			<div class="column">
 				<h1>Основные задачи</h1>
+				<button class="select-all-column">✓</button>
 				<div class="list"></div>
 				<div class="input-row">
 					<button class="add-task-all">*</button>
 					<input class="input-task" placeholder="Введите задачу">
 					<button class="add-task">+</button>
 				</div>
+				<button id="delete-all-tasks"><img src="images/delete.webp" alt="delete"></button>
+				<button id="reset-all-checks">↻</button>
 			</div>
 			<div class="column">
 				<h1>Второстепенные задачи</h1>
+				<button class="select-all-column">✓</button>
 				<div class="list"></div>
 				<div class="input-row">
 					<button class="add-task-all">*</button>
@@ -44,6 +52,7 @@
 			</div>
 			<div class="column">
 				<h1>Мелкие задачи</h1>
+				<button class="select-all-column">✓</button>
 				<div class="list"></div>
 				<div class="input-row">
 					<button class="add-task-all">*</button>
@@ -53,6 +62,7 @@
 			</div>
 			<div class="column">
 				<h1>Ненужные задачи</h1>
+				<button class="select-all-column">✓</button>
 				<div class="list"></div>
 				<div class="input-row">
 					<button class="add-task-all">*</button>
@@ -132,6 +142,48 @@
 			<div class="modal-buttons">
 				<button class="modal-apply">Применить</button>
 				<button class="modal-cancel">Отмена</button>
+			</div>
+		</dialog>
+		<dialog id="modal-time">
+			<h4>Укажите время задачи</h4>
+			<div class="modal-time-inputs">
+				<label>
+					Начало:
+					<input type="time" id="time-start">
+				</label>
+				<label>
+					Конец:
+					<input type="time" id="time-end">
+				</label>
+			</div>
+			<div class="modal-buttons">
+				<button class="modal-apply" id="time-apply">Применить</button>
+				<button class="modal-cancel" id="time-skip">Пропустить</button>
+			</div>
+		</dialog>
+		<dialog id="modal-statistics">
+			<h4>Статистика за неделю</h4>
+			<div id="statistics-content"></div>
+			<div class="modal-buttons">
+				<button class="modal-cancel" id="statistics-close">Закрыть</button>
+			</div>
+		</dialog>
+		<dialog id="modal-edit-time">
+			<h4>Редактировать время</h4>
+			<div class="modal-time-inputs">
+				<label>
+					Начало:
+					<input type="time" id="edit-time-start">
+				</label>
+				<label>
+					Конец:
+					<input type="time" id="edit-time-end">
+				</label>
+			</div>
+			<div class="modal-buttons">
+				<button class="modal-apply" id="edit-time-apply">Сохранить</button>
+				<button class="modal-delete" id="edit-time-delete">Удалить время</button>
+				<button class="modal-cancel" id="edit-time-cancel">Отмена</button>
 			</div>
 		</dialog>
 		<script type="module" src="js/main.js"></script>

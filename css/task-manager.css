@@ -1,5 +1,6 @@
 .column{
 	text-align: center;
+	position: relative;
 }
 
 .column h1{
@@ -31,6 +32,41 @@
 	font-size: clamp(1.5rem, 6vmin, 2rem);
 }
 
+#reset-all-checks{
+	position: absolute;
+	top: 0;
+	right: 0;
+	min-height: 44px;
+	aspect-ratio: 1 / 1;
+	font-size: clamp(1rem, 4vmin, 1.5rem);
+}
+
+#delete-all-tasks{
+	position: absolute;
+	top: 0;
+	left: 0;
+	min-height: 44px;
+	aspect-ratio: 1 / 1;
+	padding: 4px;
+	background: transparent;
+	border: none;
+	cursor: pointer;
+}
+
+#delete-all-tasks img{
+	width: 32px;
+	height: 32px;
+}
+
+.select-all-column{
+	display: block;
+	margin: 8px 0 8px 0;
+	text-align: left;
+	min-height: 28px;
+	padding: 2px 8px;
+	font-size: 14px;
+}
+
 .list{
 	margin: 0 auto;
 	max-width: 595px;
@@ -47,14 +83,17 @@
 
 .task-label{
 	display: flex;
-	text-align: left; 
+	text-align: left;
 	gap: 0;
 }
 
 .task-label input[type="checkbox"]{
 	width: 20px;
 	height: 20px;
+	min-width: 20px;
+	min-height: 20px;
 	accent-color: lime;
+	flex-shrink: 0;
 }
 
 .task-label span{
