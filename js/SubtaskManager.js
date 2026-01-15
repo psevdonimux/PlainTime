@@ -4,7 +4,6 @@ export default class SubtaskManager{
 		this.panelManager = panelManager;
 		this.collapsedTasks = new Set();
 	}
-
 	getTaskByPath(tasks, path){
 		const indices = String(path).split('-').map(Number);
 		let current = tasks[indices[0]];
@@ -13,15 +12,10 @@ export default class SubtaskManager{
 		}
 		return current;
 	}
-
 	setTaskByPath(tasks, path, value){
 		const indices = String(path).split('-').map(Number);
 		if(indices.length === 1){
-			if(value === null){
-				tasks.splice(indices[0], 1);
-			} else {
-				tasks[indices[0]] = value;
-			}
+			value === null ? tasks.splice(indices[0], 1) : tasks[indices[0]] = value;
 			return;
 		}
 		let current = tasks[indices[0]];
@@ -30,39 +24,25 @@ export default class SubtaskManager{
 		}
 		if(current?.subtasks){
 			const lastIdx = indices[indices.length - 1];
-			if(value === null){
-				current.subtasks.splice(lastIdx, 1);
-			} else {
-				current.subtasks[lastIdx] = value;
-			}
+			value === null ? current.subtasks.splice(lastIdx, 1) : current.subtasks[lastIdx] = value;
 		}
 	}
-
 	toggleSubtasks(path){
-		if(this.collapsedTasks.has(path)){
-			this.collapsedTasks.delete(path);
-		} else {
-			this.collapsedTasks.add(path);
-		}
+		this.collapsedTasks.has(path) ? this.collapsedTasks.delete(path) : this.collapsedTasks.add(path);
 	}
-
 	isCollapsed(path){
 		return !this.collapsedTasks.has(path);
 	}
-
 	checkParentCompletion(tasks, path){
 		const indices = String(path).split('-').map(Number);
 		if(indices.length < 2) return;
 		for(let depth = indices.length - 1; depth >= 1; depth--){
-			const parentPath = indices.slice(0, depth).join('-');
-			const parent = this.getTaskByPath(tasks, parentPath);
+			const parent = this.getTaskByPath(tasks, indices.slice(0, depth).join('-'));
 			if(parent?.subtasks?.length){
-				const allDone = parent.subtasks.every(s => s.completed);
-				parent.completed = allDone;
+				parent.completed = parent.subtasks.every(s => s.completed);
 			}
 		}
 	}
-
 	checkAllCompleted(tasks){
 		for(const task of tasks){
 			if(!task.completed) return false;
@@ -70,21 +50,19 @@ export default class SubtaskManager{
 		}
 		return true;
 	}
-
 	setAllCompleted(tasks, value){
 		for(const task of tasks){
 			task.completed = value;
 			if(task.subtasks?.length) this.setAllCompleted(task.subtasks, value);
 		}
 	}
-
 	renderTask(taskData, taskIndex, columnIndex, container, level, parentPath, taskManager){
 		const path = parentPath ? `${parentPath}-${taskIndex}` : String(taskIndex);
 		const isCollapsed = this.isCollapsed(path);
 		const hasSubtasks = taskData.subtasks?.length > 0;
 		const taskWrapper = document.createElement('div');
 		taskWrapper.className = 'task-wrapper';
-		taskWrapper.style.marginLeft = (level * 30) + 'px';
+		taskWrapper.style.marginLeft = level * 30 + 'px';
 		const taskLabel = document.createElement('label');
 		taskLabel.className = 'task-label';
 		taskLabel.dataset.taskIndex = taskIndex;

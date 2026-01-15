@@ -2,16 +2,13 @@
 	text-align: center;
 	position: relative;
 }
-
 .column h1{
 	font-size: clamp(2rem, 8vmin, 3rem);
 }
-
 .input-row{
 	display: flex;
 	justify-content: center;
 }
-
 .input-task{
 	max-width: 550px;
 	flex: 1;
@@ -19,54 +16,47 @@
 	font-size: clamp(1rem, 4vmin, 1.5rem);
 	min-height: 44px;
 }
-
-.add-task{
+.add-task,.add-task-all{
 	min-height: 44px;
-	aspect-ratio: 1 / 1;
+	aspect-ratio: 1;
+}
+.add-task{
 	font-size: clamp(1rem, 4vmin, 1.5rem);
 }
-
 .add-task-all{
-	min-height: 44px;
-	aspect-ratio: 1 / 1;
 	font-size: clamp(1.5rem, 6vmin, 2rem);
 }
-
 #reset-all-checks{
 	position: absolute;
 	top: 0;
 	right: 0;
 	min-height: 44px;
-	aspect-ratio: 1 / 1;
+	aspect-ratio: 1;
 	font-size: clamp(1rem, 4vmin, 1.5rem);
 }
-
 #delete-all-tasks{
 	position: absolute;
 	top: 0;
 	left: 0;
 	min-height: 44px;
-	aspect-ratio: 1 / 1;
+	aspect-ratio: 1;
 	padding: 4px;
 	background: transparent;
 	border: none;
 	cursor: pointer;
 }
-
 #delete-all-tasks img{
 	width: 32px;
 	height: 32px;
 }
-
 .select-all-column{
 	display: block;
-	margin: 8px 0 8px 0;
+	margin: 8px 0;
 	text-align: left;
 	min-height: 28px;
 	padding: 2px 8px;
 	font-size: 14px;
 }
-
 .list{
 	margin: 0 auto;
 	max-width: 595px;
@@ -75,18 +65,15 @@
 	font-size: clamp(1rem, 4vmin, 1.5rem);
 	min-height: 30px;
 }
-
 .completed{
 	text-decoration: line-through;
 	color: gray;
 }
-
 .task-label{
 	display: flex;
 	text-align: left;
 	gap: 0;
 }
-
 .task-label input[type="checkbox"]{
 	width: 20px;
 	height: 20px;
@@ -95,23 +82,19 @@
 	accent-color: lime;
 	flex-shrink: 0;
 }
-
 .task-label span{
 	font-size: 20px;
 }
-
 .task-div{
 	display: flex;
 	margin-left: auto;
 	gap: 10px;
 }
-
 .drag{
 	touch-action: none;
 	cursor: move;
 	user-select: none;
 }
-
 #modal-task-all{
 	background: var(--bg-color);
 	color: var(--text-color);
@@ -123,84 +106,68 @@
 	max-height: 80vh;
 	overflow-y: auto;
 }
-
 #modal-task-all::backdrop{
-	background: rgba(0, 0, 0, 0.7);
+	background: rgba(0,0,0,0.7);
 }
-
 #modal-task-all h4{
 	margin: 16px 0 12px;
 	font: 600 18px/1 inherit;
 }
-
 #modal-task-all h4:first-child{
 	margin-top: 0;
 }
-
 .modal-section{
 	margin-bottom: 20px;
 }
-
 .modal-select-all{
 	display: block;
 	margin-bottom: 12px;
 	cursor: pointer;
 	user-select: none;
 }
-
 .modal-select-all input{
 	margin-right: 8px;
 	cursor: pointer;
 }
-
-.modal-task-item,
-.modal-day-item{
+.modal-task-item,.modal-day-item{
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
 	padding: 8px 12px;
 	margin-bottom: 6px;
-	background: rgba(128, 128, 128, 0.1);
+	background: rgba(128,128,128,0.1);
 	border-radius: 6px;
 	cursor: pointer;
 	transition: background 0.2s;
 }
-
-.modal-task-item:hover,
-.modal-day-item:hover{
-	background: rgba(128, 128, 128, 0.2);
+.modal-task-item:hover,.modal-day-item:hover{
+	background: rgba(128,128,128,0.2);
 }
-
 .modal-item-left{
 	display: flex;
 	align-items: center;
 	flex: 1;
 }
-
 .modal-item-left input[type="checkbox"]{
 	width: 20px;
 	height: 20px;
 	margin-right: 12px;
 	cursor: pointer;
 }
-
 .modal-item-text{
 	flex: 1;
 }
-
 .modal-divider{
 	height: 1px;
 	margin: 20px 0;
 	background: var(--text-color);
 	opacity: 0.3;
 }
-
 .modal-buttons{
 	display: flex;
 	gap: 12px;
 	margin-top: 24px;
 }
-
 .modal-buttons button{
 	flex: 1;
 	padding: 12px 24px;
@@ -210,21 +177,17 @@
 	cursor: pointer;
 	transition: opacity 0.2s;
 }
-
 .modal-buttons button:hover{
 	opacity: 0.8;
 }
-
 .modal-apply{
 	background: #4CAF50;
 	color: white;
 }
-
 .modal-cancel{
 	background: #666;
 	color: white;
 }
-
 .modal-task-number{
 	margin-right: 8px;
 }

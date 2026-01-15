@@ -9,63 +9,44 @@ export default class TimeManager{
 		this.editingTimeTask = null;
 		this.onTaskCreated = null;
 	}
-
 	init(onTaskCreated){
 		this.onTaskCreated = onTaskCreated;
 		this.initTimeModalEvents();
 		this.initEditTimeModalEvents();
 	}
-
 	initTimeModalEvents(){
+		const startInput = document.getElementById('time-start');
+		const endInput = document.getElementById('time-end');
+		const clearInputs = () => { startInput.value = ''; endInput.value = ''; };
 		document.getElementById('time-apply').onclick = () => {
-			const start = document.getElementById('time-start').value;
-			const end = document.getElementById('time-end').value;
 			if(this.pendingTask && this.onTaskCreated){
-				this.onTaskCreated(
-					this.pendingTask.day,
-					this.pendingTask.column,
-					this.pendingTask.text,
-					start || null,
-					end || null,
-					this.pendingTask.parentPath || null
-				);
+				this.onTaskCreated(this.pendingTask.day, this.pendingTask.column, this.pendingTask.text, startInput.value || null, endInput.value || null, this.pendingTask.parentPath || null);
 				this.pendingTask = null;
 			}
 			this.modalTime.close();
-			document.getElementById('time-start').value = '';
-			document.getElementById('time-end').value = '';
+			clearInputs();
 		};
 		document.getElementById('time-skip').onclick = () => {
 			if(this.pendingTask && this.onTaskCreated){
-				this.onTaskCreated(
-					this.pendingTask.day,
-					this.pendingTask.column,
-					this.pendingTask.text,
-					null,
-					null,
-					this.pendingTask.parentPath || null
-				);
+				this.onTaskCreated(this.pendingTask.day, this.pendingTask.column, this.pendingTask.text, null, null, this.pendingTask.parentPath || null);
 				this.pendingTask = null;
 			}
 			this.modalTime.close();
-			document.getElementById('time-start').value = '';
-			document.getElementById('time-end').value = '';
+			clearInputs();
 		};
 	}
-
 	initEditTimeModalEvents(){
+		const startInput = document.getElementById('edit-time-start');
+		const endInput = document.getElementById('edit-time-end');
 		document.getElementById('edit-time-apply').onclick = () => {
 			if(this.editingTimeTask){
-				const start = document.getElementById('edit-time-start').value;
-				const end = document.getElementById('edit-time-end').value;
-				let days = this.storageManager.storageJSON('days');
-				let currentDay = this.panelManager.getCurrentTaskDay();
-				const task = this.subtaskManager.getTaskByPath(days[currentDay][this.editingTimeTask.column], this.editingTimeTask.path);
-				if(task && start && end){
-					task.timeStart = start;
-					task.timeEnd = end;
+				const days = this.storageManager.storageJSON('days');
+				const task = this.subtaskManager.getTaskByPath(days[this.panelManager.getCurrentTaskDay()][this.editingTimeTask.column], this.editingTimeTask.path);
+				if(task && startInput.value && endInput.value){
+					task.timeStart = startInput.value;
+					task.timeEnd = endInput.value;
 					this.storageManager.storageJSON('days', days);
-					if(this.onUpdate) this.onUpdate();
+					this.onUpdate?.();
 				}
 				this.editingTimeTask = null;
 			}
@@ -73,14 +54,13 @@ export default class TimeManager{
 		};
 		document.getElementById('edit-time-delete').onclick = () => {
 			if(this.editingTimeTask){
-				let days = this.storageManager.storageJSON('days');
-				let currentDay = this.panelManager.getCurrentTaskDay();
-				const task = this.subtaskManager.getTaskByPath(days[currentDay][this.editingTimeTask.column], this.editingTimeTask.path);
+				const days = this.storageManager.storageJSON('days');
+				const task = this.subtaskManager.getTaskByPath(days[this.panelManager.getCurrentTaskDay()][this.editingTimeTask.column], this.editingTimeTask.path);
 				if(task){
 					delete task.timeStart;
 					delete task.timeEnd;
 					this.storageManager.storageJSON('days', days);
-					if(this.onUpdate) this.onUpdate();
+					this.onUpdate?.();
 				}
 				this.editingTimeTask = null;
 			}
@@ -91,15 +71,12 @@ export default class TimeManager{
 			this.modalEditTime.close();
 		};
 	}
-
 	openTimeModal(){
 		this.modalTime.showModal();
 	}
-
 	openEditTimeModal(columnIndex, taskPath){
-		let days = this.storageManager.storageJSON('days');
-		let currentDay = this.panelManager.getCurrentTaskDay();
-		const task = this.subtaskManager.getTaskByPath(days[currentDay][columnIndex], taskPath);
+		const days = this.storageManager.storageJSON('days');
+		const task = this.subtaskManager.getTaskByPath(days[this.panelManager.getCurrentTaskDay()][columnIndex], taskPath);
 		if(task){
 			this.editingTimeTask = {column: columnIndex, path: taskPath};
 			document.getElementById('edit-time-start').value = task.timeStart || '';
@@ -107,11 +84,9 @@ export default class TimeManager{
 			this.modalEditTime.showModal();
 		}
 	}
-
 	setPendingTask(task){
 		this.pendingTask = task;
 	}
-
 	setOnUpdate(callback){
 		this.onUpdate = callback;
 	}

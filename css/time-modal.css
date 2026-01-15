@@ -1,5 +1,4 @@
-#modal-time,
-#modal-edit-time{
+#modal-time,#modal-edit-time{
 	background: var(--bg-color);
 	color: var(--text-color);
 	border: 2px solid var(--text-color);
@@ -7,25 +6,20 @@
 	padding: 24px;
 	min-width: 300px;
 }
-
-#modal-time::backdrop,
-#modal-edit-time::backdrop{
-	background: rgba(0, 0, 0, 0.7);
+#modal-time::backdrop,#modal-edit-time::backdrop{
+	background: rgba(0,0,0,0.7);
 }
-
 .modal-time-inputs{
 	display: flex;
 	flex-direction: column;
 	gap: 12px;
 	margin: 16px 0;
 }
-
 .modal-time-inputs label{
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
 }
-
 .modal-time-inputs input{
 	padding: 8px;
 	background: var(--bg-color);
@@ -33,23 +27,19 @@
 	border: 1px solid var(--text-color);
 	border-radius: 4px;
 }
-
 .task-time-display{
 	color: #888;
 	font-size: 14px;
 	cursor: pointer;
 }
-
 .task-time-display:hover{
 	text-decoration: underline;
 }
-
 .task-time{
 	font-size: 14px;
 	color: #888;
 	margin-left: 8px;
 }
-
 .modal-delete{
 	background: #f44336;
 	color: white;

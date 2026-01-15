@@ -3,25 +3,20 @@
 	user-select: none;
 	padding: 0 4px;
 }
-
 .subtasks-container{
 	display: none;
 }
-
 .subtasks-container.expanded{
 	display: block;
 }
-
 .subtasks{
 	margin-left: 20px;
 }
-
 .add-subtask{
 	font-size: 16px;
 	cursor: pointer;
 	margin-left: 5px;
 }
-
 .task-label[data-level="1"] input[type="checkbox"],
 .task-label[data-level="2"] input[type="checkbox"],
 .task-label[data-level="3"] input[type="checkbox"],
@@ -32,7 +27,6 @@
 	min-width: 16px;
 	min-height: 16px;
 }
-
 .task-label[data-level="1"] .task-div,
 .task-label[data-level="2"] .task-div,
 .task-label[data-level="3"] .task-div,
@@ -40,7 +34,6 @@
 .task-label[data-level="5"] .task-div{
 	gap: 8px;
 }
-
 .task-label[data-level="1"] .task-div span,
 .task-label[data-level="2"] .task-div span,
 .task-label[data-level="3"] .task-div span,

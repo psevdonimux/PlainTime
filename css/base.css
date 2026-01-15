@@ -5,17 +5,8 @@
 	font-style: normal;
 	font-display: swap;
 }
-
-body, p, button, dialog, select, input, div{
+body,p,button,dialog,select,input,div{
 	background-color: var(--bg-color);
 	color: var(--text-color);
 	font-family: 'Lato Semi Bold';
-}
-
-button, select, input, div{
-	/*
-	border-color: var(--border-color);
-	border-width: var(--border-width);
-	border-style: solid;
-	*/
 }
