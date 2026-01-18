@@ -5,6 +5,7 @@ import PanelManager from '/js/PanelManager.js';
 import SubtaskManager from '/js/SubtaskManager.js';
 import TimeManager from '/js/TimeManager.js';
 import StatisticsManager from '/js/StatisticsManager.js';
+import WallpaperManager from '/js/WallpaperManager.js';
 
 class App{
 	constructor(){
@@ -24,8 +25,10 @@ class App{
 			this.timeManager,
 			this.statisticsManager
 		);
+		this.wallpaperManager = new WallpaperManager(this.storageManager);
 		this.themeManager.updateTheme();
 		this.taskManager.bindEvents();
+		this.wallpaperManager.init();
 	}
 
 	getElements(){

@@ -5,8 +5,20 @@
 	font-style: normal;
 	font-display: swap;
 }
-body,p,button,dialog,select,input,div{
+body{
 	background-color: var(--bg-color);
+	background-size: cover;
+	background-position: center;
+	background-attachment: fixed;
+	color: var(--text-color);
+	font-family: 'Lato Semi Bold';
+}
+p,button,dialog,select,input{
+	background-color: var(--bg-color);
+	color: var(--text-color);
+	font-family: 'Lato Semi Bold';
+}
+div{
 	color: var(--text-color);
 	font-family: 'Lato Semi Bold';
 }

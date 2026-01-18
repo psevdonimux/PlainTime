@@ -11,6 +11,7 @@
 		<link rel="stylesheet" href="css/subtask.css">
 		<link rel="stylesheet" href="css/time-modal.css">
 		<link rel="stylesheet" href="css/statistics.css">
+		<link rel="stylesheet" href="css/wallpaper.css">
 	</head>
 	<body>
 		<div id="panel">
@@ -26,11 +27,16 @@
 			<input type="file" id="fileInput" style="display:none" accept=".json" />
 			<button id="export">Экспортировать</button>
 			<button id="statistics">Статистика</button>
+			<button id="wallpaper">Обои</button>
+			<input type="file" id="wallpaperInput" style="display:none" accept="image/*" />
 		</div>
 		<div>
 			<div class="column">
 				<h1>Основные задачи</h1>
-				<button class="select-all-column">✓</button>
+				<div class="column-controls">
+					<button class="select-all-column">✓</button>
+					<button class="lock-column" data-column="0">🔓</button>
+				</div>
 				<div class="list"></div>
 				<div class="input-row">
 					<button class="add-task-all">*</button>
@@ -42,7 +48,10 @@
 			</div>
 			<div class="column">
 				<h1>Второстепенные задачи</h1>
-				<button class="select-all-column">✓</button>
+				<div class="column-controls">
+					<button class="select-all-column">✓</button>
+					<button class="lock-column" data-column="1">🔓</button>
+				</div>
 				<div class="list"></div>
 				<div class="input-row">
 					<button class="add-task-all">*</button>
@@ -52,7 +61,10 @@
 			</div>
 			<div class="column">
 				<h1>Мелкие задачи</h1>
-				<button class="select-all-column">✓</button>
+				<div class="column-controls">
+					<button class="select-all-column">✓</button>
+					<button class="lock-column" data-column="2">🔓</button>
+				</div>
 				<div class="list"></div>
 				<div class="input-row">
 					<button class="add-task-all">*</button>
@@ -62,7 +74,10 @@
 			</div>
 			<div class="column">
 				<h1>Ненужные задачи</h1>
-				<button class="select-all-column">✓</button>
+				<div class="column-controls">
+					<button class="select-all-column">✓</button>
+					<button class="lock-column" data-column="3">🔓</button>
+				</div>
 				<div class="list"></div>
 				<div class="input-row">
 					<button class="add-task-all">*</button>
@@ -184,6 +199,27 @@
 				<button class="modal-apply" id="edit-time-apply">Сохранить</button>
 				<button class="modal-delete" id="edit-time-delete">Удалить время</button>
 				<button class="modal-cancel" id="edit-time-cancel">Отмена</button>
+			</div>
+		</dialog>
+		<dialog id="modal-wallpaper">
+			<h4>Обои</h4>
+			<div class="wallpaper-buttons">
+				<button id="wallpaper-download">
+					<img src="images/export.webp" alt="download">
+					<span>Скачать</span>
+				</button>
+				<button id="wallpaper-upload">
+					<img src="images/import.webp" alt="upload">
+					<span>Загрузить</span>
+				</button>
+				<button id="wallpaper-random">
+					<img src="images/random.webp" alt="random">
+					<span>Рандом</span>
+				</button>
+			</div>
+			<div class="modal-buttons">
+				<button class="modal-delete" id="wallpaper-reset">Сбросить</button>
+				<button class="modal-cancel" id="wallpaper-close">Закрыть</button>
 			</div>
 		</dialog>
 		<script type="module" src="js/main.js"></script>

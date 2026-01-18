@@ -9,6 +9,8 @@ export default class TaskManager{
 		this.statisticsManager = statisticsManager;
 		this.modal = document.getElementById('modal-task-all');
 		this.currentColumnForModal = null;
+		this.strictModes = JSON.parse(this.storageManager.storage('strictModes') || '[false,false,false,false]');
+		this.updateLockButtons();
 	}
 	bindEvents(){
 		this.updateAllTaskLists();
@@ -37,7 +39,15 @@ export default class TaskManager{
 				if(tasks.length) this.openModalForTask(this.currentColumnForModal);
 			}
 			else if(cl.contains('close')) this.deleteTask(this.panelManager.getCurrentTaskDay(), columnIndex, taskPath);
-			else if(cl.contains('checkbox')) this.updateTaskStatus(columnIndex, taskPath);
+			else if(cl.contains('checkbox')){
+				if(this.strictModes[columnIndex] && !this.canCompleteTask(columnIndex, taskPath)){
+					e.preventDefault();
+					alert('Сначала выполните предыдущие задачи по порядку');
+					return;
+				}
+				this.updateTaskStatus(columnIndex, taskPath);
+			}
+			else if(cl.contains('lock-column')) this.toggleStrictMode(parseInt(e.target.dataset.column));
 			else if(cl.contains('edit')) this.editTask(columnIndex, taskPath);
 			else if(cl.contains('days')) this.panelManager.updateDays(e);
 			else if(cl.contains('select-all-column')) this.toggleAllInColumn([...document.querySelectorAll('.column')].indexOf(e.target.closest('.column')));
@@ -354,5 +364,46 @@ export default class TaskManager{
 		this.updateAllTaskLists();
 		document.getElementById('modal-tasks-list').replaceChildren();
 		this.modal.close();
+	}
+	toggleStrictMode(col){
+		if(!this.strictModes[col]){
+			if(!confirm('Вы уверены что хотите сделать задачи строго по порядку?')) return;
+			this.strictModes[col] = true;
+		} else {
+			alert('Строгий режим отменён');
+			this.strictModes[col] = false;
+		}
+		this.storageManager.storage('strictModes', JSON.stringify(this.strictModes));
+		this.updateLockButtons();
+	}
+	updateLockButtons(){
+		document.querySelectorAll('.lock-column').forEach(btn => {
+			const col = parseInt(btn.dataset.column);
+			btn.textContent = this.strictModes[col] ? '🔒' : '🔓';
+			btn.classList.toggle('active', this.strictModes[col]);
+		});
+	}
+	canCompleteTask(columnIndex, taskPath){
+		const days = this.storageManager.storageJSON('days');
+		const currentDay = this.panelManager.getCurrentTaskDay();
+		const col = parseInt(columnIndex);
+		const task = this.subtaskManager.getTaskByPath(days[currentDay]?.[col] || [], taskPath);
+		if(task?.completed) return true;
+		const tasks = days[currentDay]?.[col] || [];
+		const pathParts = taskPath.split('-');
+		if(pathParts.length === 1){
+			const idx = parseInt(taskPath);
+			for(let i = 0; i < idx; i++){
+				if(!tasks[i]?.completed) return false;
+			}
+		} else {
+			const parentPath = pathParts.slice(0, -1).join('-');
+			const parent = this.subtaskManager.getTaskByPath(tasks, parentPath);
+			const idx = parseInt(pathParts[pathParts.length - 1]);
+			for(let i = 0; i < idx; i++){
+				if(!parent?.subtasks?.[i]?.completed) return false;
+			}
+		}
+		return true;
 	}
 }

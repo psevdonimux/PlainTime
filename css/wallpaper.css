@@ -1,0 +1,46 @@
+#modal-wallpaper{
+	background: var(--bg-color);
+	color: var(--text-color);
+	border: 2px solid var(--text-color);
+	border-radius: 12px;
+	padding: 24px;
+	min-width: 300px;
+}
+#modal-wallpaper::backdrop{
+	background: rgba(0,0,0,0.7);
+}
+#modal-wallpaper h4{
+	margin: 0 0 20px;
+	text-align: center;
+	font-size: 20px;
+}
+.wallpaper-buttons{
+	display: flex;
+	gap: 16px;
+	justify-content: center;
+	margin-bottom: 20px;
+}
+.wallpaper-buttons button{
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 8px;
+	padding: 16px;
+	background: rgba(128,128,128,0.2);
+	border: 1px solid var(--text-color);
+	border-radius: 12px;
+	cursor: pointer;
+	transition: background 0.2s;
+	min-width: 80px;
+}
+.wallpaper-buttons button:hover{
+	background: rgba(128,128,128,0.4);
+}
+.wallpaper-buttons button img{
+	width: 40px;
+	height: 40px;
+}
+.wallpaper-buttons button span{
+	color: var(--text-color);
+	font-size: 14px;
+}

@@ -49,13 +49,19 @@
 	width: 32px;
 	height: 32px;
 }
-.select-all-column{
-	display: block;
+.column-controls{
+	display: flex;
+	justify-content: space-between;
 	margin: 8px 0;
-	text-align: left;
+}
+.select-all-column,.lock-column{
 	min-height: 28px;
 	padding: 2px 8px;
 	font-size: 14px;
+}
+.lock-column.active{
+	background: #f44336;
+	color: white;
 }
 .list{
 	margin: 0 auto;
