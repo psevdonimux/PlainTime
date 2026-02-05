@@ -1,3 +1,5 @@
+[Русский](README.md) | [English](README.en.md)
+
 # PlainTime - Task Planner
 
 Minimalist weekly task planner with Eisenhower matrix prioritization.
